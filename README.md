@@ -1,5 +1,6 @@
 # ccSpigot
 A paper fork that aims to prevent skylight lag and allow changing the server brand.
+### MAKE SURE TO DELETE BUKKIT.YML AND PAPER.YML BEFORE USING
 # Config options
 These options are in paper.yml.
 
