@@ -1,5 +1,5 @@
 # ccSpigot
-
+A paper fork that aims to prevent skylight lag and allow changing the server brand.
 # Config options
 ### disable-light-updates
 Disable ALL light updates! This will prevent all the lag that comes from them, however you may some some broken lighting. Players are advised to use fullbright.
