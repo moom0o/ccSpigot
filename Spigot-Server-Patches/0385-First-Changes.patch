@@ -1,0 +1,114 @@
+From 2d01972f1faeef0927f8bceefc4fa51a396e68c7 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Mon, 17 Aug 2020 12:31:25 -0400
+Subject: [PATCH] First-Changes
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
+index d8b0a868..e361cf61 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
++++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
+@@ -218,6 +218,16 @@ public class PaperConfig {
+         if (enableFileIOThreadSleep) Bukkit.getLogger().info("Enabled sleeping between chunk saves, beware of memory issues");
+     }
+ 
++    public static String serverbrand = "§3ccSpigot";
++    private static void serverBrand() {
++        serverbrand = getString("messages.server-brand", serverbrand);
++    }
++
++    public static boolean DisableLightUpdates = true;
++    private static void LightUpdates() {
++        DisableLightUpdates = getBoolean("settings.disable-light-updates", DisableLightUpdates);
++    }
++
+     public static boolean loadPermsBeforePlugins = true;
+     private static void loadPermsBeforePlugins() {
+         loadPermsBeforePlugins = getBoolean("settings.load-permissions-yml-before-plugins", true);
+@@ -334,4 +344,4 @@ public class PaperConfig {
+             maxBookTotalSizeMultiplier = 0.98D;
+         }
+     }
+-}
++}
+\ No newline at end of file
+diff --git a/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java b/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java
+index 897bb49b..78978ffe 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java
++++ b/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java
+@@ -143,7 +143,7 @@ public class PaperWorldConfig {
+ 
+     public boolean queueLightUpdates;
+     private void queueLightUpdates() {
+-        queueLightUpdates = getBoolean("queue-light-updates", false);
++        queueLightUpdates = getBoolean("queue-light-updates", true);
+         log("Lighting Queue enabled: " + queueLightUpdates);
+     }
+ 
+@@ -375,9 +375,9 @@ public class PaperWorldConfig {
+         elytraHitWallDamage = getBoolean("elytra-hit-wall-damage", true);
+     }
+ 
+-    public int autoSavePeriod = -1;
++    public int autoSavePeriod = 6000;
+     private void autoSavePeriod() {
+-        autoSavePeriod = getInt("auto-save-interval", -1);
++        autoSavePeriod = getInt("auto-save-interval", 6000);
+         if (autoSavePeriod > 0) {
+             log("Auto Save Interval: " +autoSavePeriod + " (" + (autoSavePeriod / 20) + "s)");
+         } else if (autoSavePeriod < 0) {
+@@ -599,4 +599,4 @@ public class PaperWorldConfig {
+         preventMovingIntoUnloadedChunks = getBoolean("prevent-moving-into-unloaded-chunks", false);
+         log("Prevent players from moving into unloaded chunks: " + (this.preventMovingIntoUnloadedChunks ? "enabled" : "disabled"));
+     }
+-}
++}
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
+index 4060fd27..43bde467 100644
+--- a/src/main/java/net/minecraft/server/Chunk.java
++++ b/src/main/java/net/minecraft/server/Chunk.java
+@@ -1534,10 +1534,13 @@ public class Chunk {
+ 
+     // Paper start
+     public void runOrQueueLightUpdate(Runnable runnable) {
+-        if (this.world.paperConfig.queueLightUpdates) {
+-            lightingQueue.add(runnable);
++        if(com.destroystokyo.paper.PaperConfig.DisableLightUpdates == true){
+         } else {
+-            runnable.run();
++            if (this.world.paperConfig.queueLightUpdates) {
++                lightingQueue.add(runnable);
++            } else {
++                runnable.run();
++            }
+         }
+     }
+     // Paper end
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 3b982f99..ae97e630 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1156,7 +1156,7 @@ public abstract class MinecraftServer implements ICommandListener, Runnable, IAs
+     }
+ 
+     public String getServerModName() {
+-        return "Paper"; //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
++        return com.destroystokyo.paper.PaperConfig.serverbrand; //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
+     }
+ 
+     public CrashReport b(CrashReport crashreport) {
+diff --git a/src/main/resources/configurations/bukkit.yml b/src/main/resources/configurations/bukkit.yml
+index 67ea88a4..80f0f932 100644
+--- a/src/main/resources/configurations/bukkit.yml
++++ b/src/main/resources/configurations/bukkit.yml
+@@ -33,5 +33,5 @@ chunk-gc:
+ ticks-per:
+     animal-spawns: 400
+     monster-spawns: 1
+-    autosave: 6000
++    autosave: -1
+ aliases: now-in-commands.yml
+-- 
+2.22.0.windows.1
+
