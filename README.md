@@ -1,8 +1,7 @@
 # ccSpigot
 A paper fork that aims to prevent skylight lag and allow changing the server brand.
-### MAKE SURE TO DELETE BUKKIT.YML AND PAPER.YML BEFORE USING
 # Config options
-These options are in paper.yml.
+These options are in ccspigot.yml (we now have our own config!).
 
 ### disable-light-updates
 Disable ALL light updates! This will prevent all the lag that comes from them, however you may some some broken lighting. Players are advised to use fullbright.
@@ -12,3 +11,4 @@ Change the server brand from Paper to whatever you want! This is shown on future
 # Changes from paper
 ### Autosave
 The autosave is now using paper's instead of bukkit by default. This is a lot better.
+This will only be used if you delete your paper.yml AND your bukkit.yml before using.
