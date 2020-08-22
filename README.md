@@ -1,5 +1,6 @@
 # ccSpigot
 A paper fork that aims to prevent skylight lag and allow changing the server brand.
+<br>
 Don't say anything about those patches that have shit code! I don't know how to use git ROFL
 # Config options
 These options are in ccspigot.yml (we now have our own config!).
