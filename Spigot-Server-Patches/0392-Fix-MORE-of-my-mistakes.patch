@@ -1,0 +1,71 @@
+From 08c9400b18b03ede0829b142e3dc8bf5950e53af Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Sat, 22 Aug 2020 17:56:35 -0400
+Subject: [PATCH] Fix-MORE-of-my-mistakes
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index f3bf3808d..e5250dede 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -52,9 +52,6 @@ public class ccSpigotConfig {
+         config.options().copyDefaults(true);
+         verbose = getBoolean("verbose", false);
+ 
+-        commands = new HashMap<String, Command>();
+-        commands.put("ccspigot", new PaperCommand("ccspigot"));
+-
+         version = getInt("config-version", 13);
+         set("config-version", 13);
+         readConfig(ccSpigotConfig.class, null);
+@@ -70,16 +67,6 @@ public class ccSpigotConfig {
+         }
+     }
+ 
+-    public static void registerCommands() {
+-        for (Map.Entry<String, Command> entry : commands.entrySet()) {
+-            MinecraftServer.getServer().server.getCommandMap().register(entry.getKey(), "ccSpigot", entry.getValue());
+-        }
+-
+-        if (!metricsStarted) {
+-            Metrics.PaperMetrics.startMetrics();
+-            metricsStarted = true;
+-        }
+-    }
+ 
+     static void readConfig(Class<?> clazz, Object instance) {
+         for (Method method : clazz.getDeclaredMethods()) {
+@@ -178,14 +165,13 @@ public class ccSpigotConfig {
+         return config.getString(path, config.getString(path));
+     }
+ 
+-
+     public static String serverbrand = "§3ccSpigot";
+     private static void serverBrand() {
+-        serverbrand = getString("server-brand", serverbrand);
++        serverbrand = getString("messages.server-brand", serverbrand);
+     }
+ 
+     public static boolean DisableLightUpdates = true;
+     private static void LightUpdates() {
+-        DisableLightUpdates = getBoolean("disable-light-updates", DisableLightUpdates);
++        DisableLightUpdates = getBoolean("settings.disable-light-updates", DisableLightUpdates);
+     }
+ }
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/server/DedicatedServer.java b/src/main/java/net/minecraft/server/DedicatedServer.java
+index b2192d459..181dc3b32 100644
+--- a/src/main/java/net/minecraft/server/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/DedicatedServer.java
+@@ -198,7 +198,7 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
+             // Spigot end
+             // Paper start
+             com.destroystokyo.paper.PaperConfig.init((File) options.valueOf("paper-settings"));
+-            com.destroystokyo.paper.PaperConfig.init((File) options.valueOf("ccspigot-settings"));
++            com.destroystokyo.paper.ccSpigotConfig.init((File) options.valueOf("ccspigot-settings"));
+ 
+             com.destroystokyo.paper.PaperConfig.registerCommands();
+             com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // load version history now
+-- 
+2.22.0.windows.1
+

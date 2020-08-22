@@ -1,0 +1,22 @@
+From c3611103b3700d7a3c142960e2716d1aff5d9586 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Sat, 22 Aug 2020 16:48:07 -0400
+Subject: [PATCH] Fix-My-Mistakes
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index aedbea6ce..f3bf3808d 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -29,7 +29,7 @@ import org.spigotmc.WatchdogThread;
+ public class ccSpigotConfig {
+ 
+     private static File CONFIG_FILE;
+-    private static final String HEADER = "This is the main configuration file for ccSpigot.\n"
++    private static final String HEADER = "This is the main configuration file for ccSpigot.\n";
+     /*========================================================================*/
+     public static YamlConfiguration config;
+     static int version;
+-- 
+2.22.0.windows.1
+

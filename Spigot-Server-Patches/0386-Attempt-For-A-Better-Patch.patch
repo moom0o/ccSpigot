@@ -1,0 +1,32 @@
+From 4584e30b73efdec44d4cac807ade9c30b6524dfc Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Mon, 17 Aug 2020 14:59:41 -0400
+Subject: [PATCH] Attempt-For-A-Better-Patch
+
+
+diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
+index 43bde4679..73e115fac 100644
+--- a/src/main/java/net/minecraft/server/Chunk.java
++++ b/src/main/java/net/minecraft/server/Chunk.java
+@@ -595,12 +595,13 @@ public class Chunk {
+     }
+ 
+     public int getBrightness(EnumSkyBlock enumskyblock, BlockPosition blockposition) {
+-        int i = blockposition.getX() & 15;
+-        int j = blockposition.getY();
+-        int k = blockposition.getZ() & 15;
+-        ChunkSection chunksection = this.sections[j >> 4];
++        return Integer.MAX_VALUE;
++        // int i = blockposition.getX() & 15;
++        // int j = blockposition.getY();
++        // int k = blockposition.getZ() & 15;
++        // ChunkSection chunksection = this.sections[j >> 4];
+ 
+-        return chunksection == Chunk.a ? (this.c(blockposition) ? enumskyblock.c : 0) : (enumskyblock == EnumSkyBlock.SKY ? (!this.world.worldProvider.m() ? 0 : chunksection.b(i, j & 15, k)) : (enumskyblock == EnumSkyBlock.BLOCK ? chunksection.c(i, j & 15, k) : enumskyblock.c));
++        // return chunksection == Chunk.a ? (this.c(blockposition) ? enumskyblock.c : 0) : (enumskyblock == EnumSkyBlock.SKY ? (!this.world.worldProvider.m() ? 0 : chunksection.b(i, j & 15, k)) : (enumskyblock == EnumSkyBlock.BLOCK ? chunksection.c(i, j & 15, k) : enumskyblock.c));
+     }
+ 
+     public void a(EnumSkyBlock enumskyblock, BlockPosition blockposition, int i) {
+-- 
+2.22.0.windows.1
+

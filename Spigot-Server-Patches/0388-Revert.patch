@@ -1,0 +1,266 @@
+From cf8c9471ce5a406eb427141f3281c0fdcd1b08d9 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Mon, 17 Aug 2020 16:54:40 -0400
+Subject: [PATCH] Revert
+
+
+diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
+index 663a41e9e..43bde4679 100644
+--- a/src/main/java/net/minecraft/server/Chunk.java
++++ b/src/main/java/net/minecraft/server/Chunk.java
+@@ -1,5 +1,10 @@
+ package net.minecraft.server;
+ 
++// Paper start
++import com.destroystokyo.paper.PaperWorldConfig.DuplicateUUIDMode;
++import java.util.HashMap;
++import java.util.UUID;
++// Paper end
+ import com.destroystokyo.paper.exception.ServerInternalException;
+ import com.google.common.base.Predicate;
+ import com.google.common.collect.Maps;
+@@ -31,6 +36,7 @@ public class Chunk {
+     public final World world;
+     public final int[] heightMap;
+     public Long scheduledForUnload; // Paper - delay chunk unloads
++    private static final Logger logger = LogManager.getLogger(); // Paper
+     public final int locX;
+     public final int locZ;
+     private boolean m;
+@@ -68,7 +74,7 @@ public class Chunk {
+     // Paper end
+     private boolean done;
+     private boolean lit;
+-    private boolean r;
++    private boolean r; private boolean isTicked() { return r; }; // Paper - OBFHELPER
+     private boolean s;
+     private boolean t;
+     private long lastSaved;
+@@ -158,7 +164,7 @@ public class Chunk {
+                         int j1 = i1 >> 4;
+ 
+                         if (this.sections[j1] == Chunk.a) {
+-                            this.sections[j1] = new ChunkSection(j1 << 4, flag1);
++                            this.sections[j1] = new ChunkSection(j1 << 4, flag1, world.chunkPacketBlockController.getPredefinedBlockData(this, j1)); // Paper - Anti-Xray - Add predefined block data
+                         }
+ 
+                         this.sections[j1].setType(k, i1 & 15, l, iblockdata);
+@@ -268,14 +274,7 @@ public class Chunk {
+ 
+     private void h(boolean flag) {
+         this.world.methodProfiler.a("recheckGaps");
+-        if (this.world.areChunksLoaded(new BlockPosition(this.locX * 16 + 8, 0, this.locZ * 16 + 8), 16)) {
+-            this.runOrQueueLightUpdate(() -> recheckGaps(flag)); // Paper - Queue light update
+-        }
+-    }
+-
+-    private void recheckGaps(boolean flag) {
+-        if (true) {
+-            // Paper end
++        if (this.areNeighborsLoaded(1)) { // Paper
+             for (int i = 0; i < 16; ++i) {
+                 for (int j = 0; j < 16; ++j) {
+                     if (this.i[i + j * 16]) {
+@@ -326,7 +325,7 @@ public class Chunk {
+     }
+ 
+     private void a(int i, int j, int k, int l) {
+-        if (l > k && this.world.areChunksLoaded(new BlockPosition(i, 0, j), 16)) {
++        if (l > k && this.areNeighborsLoaded(1)) { // Paper
+             for (int i1 = k; i1 < l; ++i1) {
+                 this.world.c(EnumSkyBlock.SKY, new BlockPosition(i, i1, j));
+             }
+@@ -525,7 +524,7 @@ public class Chunk {
+                     return null;
+                 }
+ 
+-                chunksection = new ChunkSection(j >> 4 << 4, this.world.worldProvider.m());
++                chunksection = new ChunkSection(j >> 4 << 4, this.world.worldProvider.m(), this.world.chunkPacketBlockController.getPredefinedBlockData(this, j >> 4)); // Paper - Anti-Xray - Add predefined block data
+                 this.sections[j >> 4] = chunksection;
+                 flag = j >= i1;
+             }
+@@ -611,7 +610,7 @@ public class Chunk {
+         ChunkSection chunksection = this.sections[k >> 4];
+ 
+         if (chunksection == Chunk.a) {
+-            chunksection = new ChunkSection(k >> 4 << 4, this.world.worldProvider.m());
++            chunksection = new ChunkSection(k >> 4 << 4, this.world.worldProvider.m(), this.world.chunkPacketBlockController.getPredefinedBlockData(this, k >> 4)); // Paper - Anti-Xray - Add predefined block data
+             this.sections[k >> 4] = chunksection;
+             this.initLighting();
+         }
+@@ -658,6 +657,7 @@ public class Chunk {
+         if (i != this.locX || j != this.locZ) {
+             Chunk.e.warn("Wrong location! ({}, {}) should be ({}, {}), {}", Integer.valueOf(i), Integer.valueOf(j), Integer.valueOf(this.locX), Integer.valueOf(this.locZ), entity);
+             entity.die();
++            return; // Paper
+         }
+ 
+         int k = MathHelper.floor(entity.locY / 16.0D);
+@@ -674,8 +674,28 @@ public class Chunk {
+         entity.ab = this.locX;
+         entity.ac = k;
+         entity.ad = this.locZ;
+-        this.entitySlices[k].add(entity);
++
+         // Paper start
++        List<Entity> entitySlice = this.entitySlices[k];
++        boolean inThis = entitySlice.contains(entity);
++        List<Entity> currentSlice = entity.entitySlice;
++        if (inThis || (currentSlice != null && currentSlice.contains(entity))) {
++            if (currentSlice == entitySlice || inThis) {
++                return;
++            } else {
++                Chunk chunk = entity.getCurrentChunk();
++                if (chunk != null) {
++                    chunk.removeEntity(entity);
++                } else {
++                    removeEntity(entity);
++                }
++                currentSlice.remove(entity); // Just incase the above did not remove from this target slice
++            }
++        }
++        entity.entitySlice = entitySlice;
++        entitySlice.add(entity);
++
++        this.markDirty();
+         entity.setCurrentChunk(this);
+         entityCounts.increment(entity.getMinecraftKeyString());
+         if (entity instanceof EntityItem) {
+@@ -702,6 +722,7 @@ public class Chunk {
+         // Spigot end
+     }
+ 
++    public void removeEntity(Entity entity) { b(entity); } // Paper - OBFHELPER
+     public void b(Entity entity) {
+         this.a(entity, entity.ac);
+     }
+@@ -716,7 +737,11 @@ public class Chunk {
+         }
+ 
+         // Paper start
++        if (entity.entitySlice == null || !entity.entitySlice.contains(entity) || entitySlices[i] == entity.entitySlice) {
++            entity.entitySlice = null;
++        }
+         if (!this.entitySlices[i].remove(entity)) { return; }
++        this.markDirty();
+         entity.setCurrentChunk(null);
+         entityCounts.decrement(entity.getMinecraftKeyString());
+         if (entity instanceof EntityItem) {
+@@ -847,12 +872,59 @@ public class Chunk {
+         this.world.b(this.tileEntities.values());
+         List[] aentityslice = this.entitySlices; // Spigot
+         int i = aentityslice.length;
++        List<Entity> toAdd = new java.util.ArrayList<>(32); // Paper
+ 
+         for (int j = 0; j < i; ++j) {
+             List entityslice = aentityslice[j]; // Spigot
++            // Paper start
++            DuplicateUUIDMode mode = world.paperConfig.duplicateUUIDMode;
++            if (mode == DuplicateUUIDMode.WARN || mode == DuplicateUUIDMode.DELETE || mode == DuplicateUUIDMode.SAFE_REGEN) {
++                Map<UUID, Entity> thisChunk = new HashMap<>();
++                for (Iterator<Entity> iterator = ((List<Entity>) entityslice).iterator(); iterator.hasNext(); ) {
++                    Entity entity = iterator.next();
++                    if (entity.dead || entity.valid) continue;
++                    Entity other = ((WorldServer) world).entitiesByUUID.get(entity.uniqueID);
++                    if (other == null || other.dead || world.getEntityUnloadQueue().contains(other)) {
++                        other = thisChunk.get(entity.uniqueID);
++                    }
+ 
+-            this.world.a((Collection) entityslice);
++                    if (mode == DuplicateUUIDMode.SAFE_REGEN && other != null && !other.dead &&
++                        !world.getEntityUnloadQueue().contains(other)
++                        && java.util.Objects.equals(other.getSaveID(), entity.getSaveID())
++                        && entity.getBukkitEntity().getLocation().distance(other.getBukkitEntity().getLocation()) < world.paperConfig.duplicateUUIDDeleteRange
++                    ) {
++                        if (World.DEBUG_ENTITIES) logger.warn("[DUPE-UUID] Duplicate UUID found used by " + other + ", deleted entity " + entity + " because it was near the duplicate and likely an actual duplicate. See https://github.com/PaperMC/Paper/issues/1223 for discussion on what this is about.");
++                        entity.die();
++                        iterator.remove();
++                        continue;
++                    }
++                    if (other != null && !other.dead) {
++                        switch (mode) {
++                            case SAFE_REGEN: {
++                                entity.setUUID(UUID.randomUUID());
++                                if (World.DEBUG_ENTITIES) logger.warn("[DUPE-UUID] Duplicate UUID found used by " + other + ", regenerated UUID for " + entity + ". See https://github.com/PaperMC/Paper/issues/1223 for discussion on what this is about.");
++                                break;
++                            }
++                            case DELETE: {
++                                if (World.DEBUG_ENTITIES) logger.warn("[DUPE-UUID] Duplicate UUID found used by " + other + ", deleted entity " + entity + ". See https://github.com/PaperMC/Paper/issues/1223 for discussion on what this is about.");
++                                entity.die();
++                                iterator.remove();
++                                break;
++                            }
++                            default:
++                                if (World.DEBUG_ENTITIES) logger.warn("[DUPE-UUID] Duplicate UUID found used by " + other + ", doing nothing to " + entity + ". See https://github.com/PaperMC/Paper/issues/1223 for discussion on what this is about.");
++                                break;
++                        }
++                    }
++                    thisChunk.put(entity.uniqueID, entity);
++                }
++            }
++
++            //this.world.a((Collection) entityslice); // Move down, add all entities at same time
++            toAdd.addAll(entityslice);
++            // Paper end
+         }
++        this.world.addChunkEntities(toAdd); // Paper - add all at same time to avoid entities adding to world modifying slice state
+ 
+     }
+ 
+@@ -869,7 +941,7 @@ public class Chunk {
+                 {
+                     if ( h instanceof org.bukkit.craftbukkit.entity.CraftHumanEntity )
+                     {
+-                       ( (org.bukkit.craftbukkit.entity.CraftHumanEntity) h).getHandle().closeInventory();
++                       ( (org.bukkit.craftbukkit.entity.CraftHumanEntity) h).getHandle().closeInventory(org.bukkit.event.inventory.InventoryCloseEvent.Reason.UNLOADED); // Paper
+                     }
+                 }
+             }
+@@ -894,12 +966,13 @@ public class Chunk {
+                     {
+                         if ( h instanceof org.bukkit.craftbukkit.entity.CraftHumanEntity )
+                         {
+-                           ( (org.bukkit.craftbukkit.entity.CraftHumanEntity) h).getHandle().closeInventory();
++                           ( (org.bukkit.craftbukkit.entity.CraftHumanEntity) h).getHandle().closeInventory(org.bukkit.event.inventory.InventoryCloseEvent.Reason.UNLOADED); // Paper
+                         }
+                     }
+                 }
+                 // Spigot End
+                 entity.setCurrentChunk(null); // Paper
++                entity.entitySlice = null; // Paper
+ 
+                 // Do not pass along players, as doing so can get them stuck outside of time.
+                 // (which for example disables inventory icon updates and prevents block breaking)
+@@ -1171,7 +1244,11 @@ public class Chunk {
+          * We cannot unfortunately do this lighting stage during chunk gen as it appears to put a lot more noticeable load on the server, than when it is done at play time.
+          * For now at least we will simply send all chunks, in accordance with pre 1.7 behaviour.
+          */
+-        return true;
++        // Paper Start
++        // if randomLightUpdates are disabled, we should always return true, otherwise chunks may never send
++        // to the client due to not being lit, otherwise retain standard behavior and only send properly lit chunks.
++        return !this.world.spigotConfig.randomLightUpdates || (this.isTicked() && this.done && this.lit);
++        // Paper End
+         // Spigot End
+     }
+ 
+@@ -1457,10 +1534,13 @@ public class Chunk {
+ 
+     // Paper start
+     public void runOrQueueLightUpdate(Runnable runnable) {
+-        if (this.world.paperConfig.queueLightUpdates) {
+-            lightingQueue.add(runnable);
++        if(com.destroystokyo.paper.PaperConfig.DisableLightUpdates == true){
+         } else {
+-            runnable.run();
++            if (this.world.paperConfig.queueLightUpdates) {
++                lightingQueue.add(runnable);
++            } else {
++                runnable.run();
++            }
+         }
+     }
+     // Paper end
+-- 
+2.22.0.windows.1
+

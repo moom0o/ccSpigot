@@ -1,0 +1,25 @@
+From d3acfecacfe8f7e23f67f10e20f00ba783b7f706 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Sat, 22 Aug 2020 17:11:31 -0400
+Subject: [PATCH] Fix-More-Of-My-Stupid-Mistakes
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 0142b9116..db83d6787 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1873,11 +1873,6 @@ public final class CraftServer implements Server {
+             return com.destroystokyo.paper.PaperConfig.config;
+         }
+         @Override
+-        public YamlConfiguration getccSpigotConfig()
+-        {
+-            return com.destroystokyo.paper.ccSpigotConfig.config;
+-        }
+-        @Override
+         public void restart() {
+             org.spigotmc.RestartCommand.restart();
+         }
+-- 
+2.22.0.windows.1
+
