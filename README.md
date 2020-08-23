@@ -9,7 +9,8 @@ These options are in ccspigot.yml (we now have our own config!).
 Disable ALL light updates! This will prevent all the lag that comes from them. I haven't seen any issues in testing.
 ### server-brand
 Change the server brand from Paper to whatever you want! This is shown on futureclient/in the f3 menu.
-
+### disable-chunk-relocation
+This will disable the chunk relocation feature for when you have a corrupted world. This seems to have a ton of false positives for me. Remember this is experimental and may brick your server. It is disabled by default.
 # Changes from paper
 ### Autosave
 The autosave is now using paper's instead of bukkit by default. This is a lot better.
