@@ -1,0 +1,91 @@
+From 7559e6f11a7277abb0fdc2afc12e842ef99c63d7 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Sat, 22 Aug 2020 21:04:55 -0400
+Subject: [PATCH] Add-Option-To-Disable-Chunk-Relocation
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index e5250dede..cc27a9d2e 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -174,4 +174,9 @@ public class ccSpigotConfig {
+     private static void LightUpdates() {
+         DisableLightUpdates = getBoolean("settings.disable-light-updates", DisableLightUpdates);
+     }
+-}
+\ No newline at end of file
++
++    public static boolean DisableChunkRelocation = false;
++    private static void ChunkRelocation() {
++        DisableChunkRelocation = getBoolean("experimental.disable-chunk-relocation", DisableLightUpdates);
++    }
++}
+diff --git a/src/main/java/net/minecraft/server/ChunkRegionLoader.java b/src/main/java/net/minecraft/server/ChunkRegionLoader.java
+index e6906effb..03de957cb 100644
+--- a/src/main/java/net/minecraft/server/ChunkRegionLoader.java
++++ b/src/main/java/net/minecraft/server/ChunkRegionLoader.java
+@@ -117,27 +117,30 @@ public class ChunkRegionLoader implements IChunkLoader, IAsyncChunkSaver {
+                 return null;
+             } else {
+                 Chunk chunk = this.a(world, nbttagcompound1);
+-
+-                if (!chunk.a(i, j)) {
+-                    ChunkRegionLoader.a.error("Chunk file at {},{} is in the wrong location; relocating. (Expected {}, {}, got {}, {})", Integer.valueOf(i), Integer.valueOf(j), Integer.valueOf(i), Integer.valueOf(j), Integer.valueOf(chunk.locX), Integer.valueOf(chunk.locZ));
+-                    nbttagcompound1.setInt("xPos", i);
+-                    nbttagcompound1.setInt("zPos", j);
+-
+-                    // CraftBukkit start - Have to move tile entities since we don't load them at this stage
+-                    NBTTagList tileEntities = nbttagcompound.getCompound("Level").getList("TileEntities", 10);
+-                    if (tileEntities != null) {
+-                        for (int te = 0; te < tileEntities.size(); te++) {
+-                            NBTTagCompound tileEntity = (NBTTagCompound) tileEntities.get(te);
+-                            int x = tileEntity.getInt("x") - chunk.locX * 16;
+-                            int z = tileEntity.getInt("z") - chunk.locZ * 16;
+-                            tileEntity.setInt("x", i * 16 + x);
+-                            tileEntity.setInt("z", j * 16 + z);
++                if(com.destroystokyo.paper.ccSpigotConfig.DisableChunkRelocation == false) {
++                    if (!chunk.a(i, j)) {
++                        ChunkRegionLoader.a.error("Chunk file at {},{} is in the wrong location; relocating. (Expected {}, {}, got {}, {})", Integer.valueOf(i), Integer.valueOf(j), Integer.valueOf(i), Integer.valueOf(j), Integer.valueOf(chunk.locX), Integer.valueOf(chunk.locZ));
++                        nbttagcompound1.setInt("xPos", i);
++                        nbttagcompound1.setInt("zPos", j);
++
++                        // CraftBukkit start - Have to move tile entities since we don't load them at this stage
++                        NBTTagList tileEntities = nbttagcompound.getCompound("Level").getList("TileEntities", 10);
++                        if (tileEntities != null) {
++                            for (int te = 0; te < tileEntities.size(); te++) {
++                                NBTTagCompound tileEntity = (NBTTagCompound) tileEntities.get(te);
++                                int x = tileEntity.getInt("x") - chunk.locX * 16;
++                                int z = tileEntity.getInt("z") - chunk.locZ * 16;
++                                tileEntity.setInt("x", i * 16 + x);
++                                tileEntity.setInt("z", j * 16 + z);
++                            }
+                         }
++                        // CraftBukkit end
++                        chunk = this.a(world, nbttagcompound1);
+                     }
+-                    // CraftBukkit end
+-                    chunk = this.a(world, nbttagcompound1);
+-                }
++                } else {
++                    ChunkRegionLoader.a.error("Chunk file at {},{} is in the wrong location; DisableChunkRelocation is on, so not relocating.");
+ 
++                }
+                 // CraftBukkit start
+                 Object[] data = new Object[2];
+                 data[0] = chunk;
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index 7a4d7bb33..4cc4e62bb 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -136,7 +136,7 @@ public class Main {
+                 // Paper end
+                 
+                 // ccSpigot Start
+-                acceptsAll(asList("ccspigot", "ccspigot-settings"), "File for paper settings")
++                acceptsAll(asList("ccspigot", "ccspigot-settings"), "File for ccspigot settings")
+                         .withRequiredArg()
+                         .ofType(File.class)
+                         .defaultsTo(new File("ccspigot.yml"))
+-- 
+2.22.0.windows.1
+

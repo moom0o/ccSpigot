@@ -1,0 +1,63 @@
+From 444af6a7440bc5771b66434056211e9168a67deb Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Sat, 22 Aug 2020 21:37:56 -0400
+Subject: [PATCH] Fix-Console-Spam-Bug
+
+
+diff --git a/src/main/java/net/minecraft/server/ChunkRegionLoader.java b/src/main/java/net/minecraft/server/ChunkRegionLoader.java
+index 03de957cb..f46eef1c0 100644
+--- a/src/main/java/net/minecraft/server/ChunkRegionLoader.java
++++ b/src/main/java/net/minecraft/server/ChunkRegionLoader.java
+@@ -117,30 +117,29 @@ public class ChunkRegionLoader implements IChunkLoader, IAsyncChunkSaver {
+                 return null;
+             } else {
+                 Chunk chunk = this.a(world, nbttagcompound1);
+-                if(com.destroystokyo.paper.ccSpigotConfig.DisableChunkRelocation == false) {
+                     if (!chunk.a(i, j)) {
+-                        ChunkRegionLoader.a.error("Chunk file at {},{} is in the wrong location; relocating. (Expected {}, {}, got {}, {})", Integer.valueOf(i), Integer.valueOf(j), Integer.valueOf(i), Integer.valueOf(j), Integer.valueOf(chunk.locX), Integer.valueOf(chunk.locZ));
+-                        nbttagcompound1.setInt("xPos", i);
+-                        nbttagcompound1.setInt("zPos", j);
+-
+-                        // CraftBukkit start - Have to move tile entities since we don't load them at this stage
+-                        NBTTagList tileEntities = nbttagcompound.getCompound("Level").getList("TileEntities", 10);
+-                        if (tileEntities != null) {
+-                            for (int te = 0; te < tileEntities.size(); te++) {
+-                                NBTTagCompound tileEntity = (NBTTagCompound) tileEntities.get(te);
+-                                int x = tileEntity.getInt("x") - chunk.locX * 16;
+-                                int z = tileEntity.getInt("z") - chunk.locZ * 16;
+-                                tileEntity.setInt("x", i * 16 + x);
+-                                tileEntity.setInt("z", j * 16 + z);
++                        if(com.destroystokyo.paper.ccSpigotConfig.DisableChunkRelocation == false) {
++                            ChunkRegionLoader.a.error("Chunk file at {},{} is in the wrong location; relocating. (Expected {}, {}, got {}, {})", Integer.valueOf(i), Integer.valueOf(j), Integer.valueOf(i), Integer.valueOf(j), Integer.valueOf(chunk.locX), Integer.valueOf(chunk.locZ));
++                            nbttagcompound1.setInt("xPos", i);
++                            nbttagcompound1.setInt("zPos", j);
++
++                            // CraftBukkit start - Have to move tile entities since we don't load them at this stage
++                            NBTTagList tileEntities = nbttagcompound.getCompound("Level").getList("TileEntities", 10);
++                            if (tileEntities != null) {
++                                for (int te = 0; te < tileEntities.size(); te++) {
++                                    NBTTagCompound tileEntity = (NBTTagCompound) tileEntities.get(te);
++                                    int x = tileEntity.getInt("x") - chunk.locX * 16;
++                                    int z = tileEntity.getInt("z") - chunk.locZ * 16;
++                                    tileEntity.setInt("x", i * 16 + x);
++                                    tileEntity.setInt("z", j * 16 + z);
++                                }
+                             }
++                            // CraftBukkit end
++                            chunk = this.a(world, nbttagcompound1);
++                        } else {
++                            ChunkRegionLoader.a.error("Chunk file at {},{} is in the wrong location; DisableChunkRelocation is on, so not relocating.");
+                         }
+-                        // CraftBukkit end
+-                        chunk = this.a(world, nbttagcompound1);
+                     }
+-                } else {
+-                    ChunkRegionLoader.a.error("Chunk file at {},{} is in the wrong location; DisableChunkRelocation is on, so not relocating.");
+-
+-                }
+                 // CraftBukkit start
+                 Object[] data = new Object[2];
+                 data[0] = chunk;
+-- 
+2.22.0.windows.1
+

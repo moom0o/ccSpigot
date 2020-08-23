@@ -1,0 +1,21 @@
+From 6a7c0b6dec2d393788dc913ef143a7c359b05efe Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Sat, 22 Aug 2020 22:05:38 -0400
+Subject: [PATCH] Fix-Config
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index cc27a9d2e..d7fd2131a 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -177,6 +177,6 @@ public class ccSpigotConfig {
+ 
+     public static boolean DisableChunkRelocation = false;
+     private static void ChunkRelocation() {
+-        DisableChunkRelocation = getBoolean("experimental.disable-chunk-relocation", DisableLightUpdates);
++        DisableChunkRelocation = getBoolean("experimental.disable-chunk-relocation", DisableChunkRelocation);
+     }
+ }
+-- 
+2.22.0.windows.1
+
