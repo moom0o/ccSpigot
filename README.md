@@ -6,7 +6,7 @@ Don't say anything about those patches that have shit code! I don't know how to 
 These options are in ccspigot.yml (we now have our own config!).
 
 ### disable-light-updates
-Disable ALL light updates! This will prevent all the lag that comes from them, however you may some some broken lighting. Players are advised to use fullbright.
+Disable ALL light updates! This will prevent all the lag that comes from them. I haven't seen any issues in testing.
 ### server-brand
 Change the server brand from Paper to whatever you want! This is shown on futureclient/in the f3 menu.
 
