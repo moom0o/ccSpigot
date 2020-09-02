@@ -5,8 +5,10 @@ Don't say anything about those patches that have shit code! I don't know how to 
 ## Config options
 These options are in ccspigot.yml (we now have our own config!).
 
+### light-update-max-time
+Max time for light updates, this option is much better than disable-light-updates. 
 ### disable-light-updates
-Disable ALL light updates! This will prevent all the lag that comes from them. I haven't seen any issues in testing.
+Disable ALL light updates! This will prevent all the lag that comes from them. DO NOT USE. USE LIGHT-UPDATE-MAX-TIME
 ### server-brand
 Change the server brand from Paper to whatever you want! This is shown on futureclient/in the f3 menu.
 ### disable-chunk-relocation
