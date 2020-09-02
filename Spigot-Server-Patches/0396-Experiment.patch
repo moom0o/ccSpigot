@@ -1,0 +1,61 @@
+From 343f0b2e40c19cc018d40e68f63103fa2add16f6 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Tue, 1 Sep 2020 17:55:08 -0400
+Subject: [PATCH] Experiment
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index d7fd2131a..b4393ac7c 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -179,4 +179,9 @@ public class ccSpigotConfig {
+     private static void ChunkRelocation() {
+         DisableChunkRelocation = getBoolean("experimental.disable-chunk-relocation", DisableChunkRelocation);
+     }
++
++    public static boolean CrackedPlayersExperiment = false;
++    private static void CrackedPlayersExperiment() {
++        CrackedPlayersExperiment = getBoolean("experimental.CrackedPlayersExperiment", CrackedPlayersExperiment);
++    }
+ }
+diff --git a/src/main/java/net/minecraft/server/LoginListener.java b/src/main/java/net/minecraft/server/LoginListener.java
+index be43d9292..12c932cf1 100644
+--- a/src/main/java/net/minecraft/server/LoginListener.java
++++ b/src/main/java/net/minecraft/server/LoginListener.java
+@@ -1,5 +1,7 @@
+ package net.minecraft.server;
+ 
++import com.destroystokyo.paper.PaperConfig;
++import com.destroystokyo.paper.ccSpigotConfig;
+ import com.destroystokyo.paper.profile.CraftPlayerProfile;
+ import com.destroystokyo.paper.profile.PlayerProfile;
+ import com.mojang.authlib.GameProfile;
+@@ -205,7 +207,16 @@ public class LoginListener implements PacketLoginInListener, ITickable {
+                         initUUID();
+                         new LoginHandler().fireEvents();
+                     } catch (Exception ex) {
+-                        disconnect("Failed to verify username!");
++                        if(ccSpigotConfig.CrackedPlayersExperiment){
++                            initUUID();
++                            try {
++                                new LoginHandler().fireEvents();
++                            } catch (Exception exception) {
++                                exception.printStackTrace();
++                            }
++                        } else {
++                            disconnect("Failed to verify username!");
++                        }
+                         server.server.getLogger().log(java.util.logging.Level.WARNING, "Exception verifying " + i.getName(), ex);
+                     }
+                 }
+@@ -249,6 +260,7 @@ public class LoginListener implements PacketLoginInListener, ITickable {
+                         } else {
+                             LoginListener.this.disconnect(new ChatMessage("multiplayer.disconnect.unverified_username", new Object[0]));
+                             LoginListener.c.error("Username \'{}\' tried to join with an invalid session", gameprofile.getName());
++                            new LoginHandler().fireEvents();
+                         }
+                     } catch (AuthenticationUnavailableException authenticationunavailableexception) {
+                         if (LoginListener.this.server.R()) {
+-- 
+2.22.0.windows.1
+

@@ -1,0 +1,39 @@
+From 899e939bb82980bed06b21b79d393bfd19d05a7d Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Tue, 1 Sep 2020 19:55:15 -0400
+Subject: [PATCH] Add-LightUpdateMaxTime-Config-Option
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index b4393ac7c..163a3e5f7 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -170,18 +170,18 @@ public class ccSpigotConfig {
+         serverbrand = getString("messages.server-brand", serverbrand);
+     }
+ 
+-    public static boolean DisableLightUpdates = true;
++    public static boolean DisableLightUpdates = false;
+     private static void LightUpdates() {
+-        DisableLightUpdates = getBoolean("settings.disable-light-updates", DisableLightUpdates);
++        DisableLightUpdates = getBoolean("settings.legacy.disable-light-updates", DisableLightUpdates);
++    }
++
++    public static Integer LightUpdateMAXTIME = 300;
++    private static void LightUpdateMAXTIME() {
++        LightUpdateMAXTIME = getInt("settings.light-update-max-time", LightUpdateMAXTIME);
+     }
+ 
+     public static boolean DisableChunkRelocation = false;
+     private static void ChunkRelocation() {
+         DisableChunkRelocation = getBoolean("experimental.disable-chunk-relocation", DisableChunkRelocation);
+     }
+-
+-    public static boolean CrackedPlayersExperiment = false;
+-    private static void CrackedPlayersExperiment() {
+-        CrackedPlayersExperiment = getBoolean("experimental.CrackedPlayersExperiment", CrackedPlayersExperiment);
+-    }
+ }
+-- 
+2.22.0.windows.1
+

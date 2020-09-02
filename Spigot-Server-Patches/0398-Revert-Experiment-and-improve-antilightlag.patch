@@ -1,0 +1,71 @@
+From 7fa87a847214f9185e966989b446e5dea1874102 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Tue, 1 Sep 2020 19:27:34 -0400
+Subject: [PATCH] Revert-Experiment-and-improve-antilightlag
+
+
+diff --git a/src/main/java/net/minecraft/server/LoginListener.java b/src/main/java/net/minecraft/server/LoginListener.java
+index 0f8c9aa7c..3b19b7751 100644
+--- a/src/main/java/net/minecraft/server/LoginListener.java
++++ b/src/main/java/net/minecraft/server/LoginListener.java
+@@ -207,16 +207,7 @@ public class LoginListener implements PacketLoginInListener, ITickable {
+                         initUUID();
+                         new LoginHandler().fireEvents();
+                     } catch (Exception ex) {
+-                        if(ccSpigotConfig.CrackedPlayersExperiment){
+-                            initUUID();
+-                            try {
+-                                new LoginHandler().fireEvents();
+-                            } catch (Exception exception) {
+-                                exception.printStackTrace();
+-                            }
+-                        } else {
+-                            disconnect("Failed to verify username!");
+-                        }
++                        disconnect("Failed to verify username!");
+                         server.server.getLogger().log(java.util.logging.Level.WARNING, "Exception verifying " + i.getName(), ex);
+                     }
+                 }
+@@ -258,18 +249,9 @@ public class LoginListener implements PacketLoginInListener, ITickable {
+                             LoginListener.this.i = LoginListener.this.a(gameprofile);
+                             LoginListener.this.g = LoginListener.EnumProtocolState.READY_TO_ACCEPT;
+                         } else {
+-                            if(ccSpigotConfig.CrackedPlayersExperiment){
+-                                initUUID();
+-                                try {
+-                                    new LoginHandler().fireEvents();
+-                                } catch (Exception exception) {
+-                                    exception.printStackTrace();
+-                                }
+-                            } else {
+-                                LoginListener.this.disconnect(new ChatMessage("multiplayer.disconnect.unverified_username", new Object[0]));
+-                            }
++                            LoginListener.this.disconnect(new ChatMessage("multiplayer.disconnect.unverified_username", new Object[0]));
+                             LoginListener.c.error("Username \'{}\' tried to join with an invalid session", gameprofile.getName());
+-//                            new LoginHandler().fireEvents();
++                            new LoginHandler().fireEvents();
+                         }
+                     } catch (AuthenticationUnavailableException authenticationunavailableexception) {
+                         if (LoginListener.this.server.R()) {
+diff --git a/src/main/java/net/minecraft/server/PaperLightingQueue.java b/src/main/java/net/minecraft/server/PaperLightingQueue.java
+index f1c013116..a7148d4e4 100644
+--- a/src/main/java/net/minecraft/server/PaperLightingQueue.java
++++ b/src/main/java/net/minecraft/server/PaperLightingQueue.java
+@@ -1,12 +1,13 @@
+ package net.minecraft.server;
+ 
+ import co.aikar.timings.Timing;
++import com.destroystokyo.paper.ccSpigotConfig;
+ import it.unimi.dsi.fastutil.objects.ObjectCollection;
+ 
+ import java.util.ArrayDeque;
+ 
+ class PaperLightingQueue {
+-    private static final long MAX_TIME = (long) (1000000000 / 20 * 1.15);
++    private static final long MAX_TIME = (long) (ccSpigotConfig.LightUpdateMAXTIME / 20 * 1.15);
+ 
+     static void processQueue(long curTime) {
+         final long startTime = System.nanoTime();
+-- 
+2.22.0.windows.1
+

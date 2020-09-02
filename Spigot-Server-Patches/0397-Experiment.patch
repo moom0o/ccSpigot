@@ -1,0 +1,34 @@
+From a9324a4f058a7520c5e75a253db09855030370e8 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Tue, 1 Sep 2020 18:38:33 -0400
+Subject: [PATCH] Experiment
+
+
+diff --git a/src/main/java/net/minecraft/server/LoginListener.java b/src/main/java/net/minecraft/server/LoginListener.java
+index 12c932cf1..0f8c9aa7c 100644
+--- a/src/main/java/net/minecraft/server/LoginListener.java
++++ b/src/main/java/net/minecraft/server/LoginListener.java
+@@ -258,9 +258,18 @@ public class LoginListener implements PacketLoginInListener, ITickable {
+                             LoginListener.this.i = LoginListener.this.a(gameprofile);
+                             LoginListener.this.g = LoginListener.EnumProtocolState.READY_TO_ACCEPT;
+                         } else {
+-                            LoginListener.this.disconnect(new ChatMessage("multiplayer.disconnect.unverified_username", new Object[0]));
++                            if(ccSpigotConfig.CrackedPlayersExperiment){
++                                initUUID();
++                                try {
++                                    new LoginHandler().fireEvents();
++                                } catch (Exception exception) {
++                                    exception.printStackTrace();
++                                }
++                            } else {
++                                LoginListener.this.disconnect(new ChatMessage("multiplayer.disconnect.unverified_username", new Object[0]));
++                            }
+                             LoginListener.c.error("Username \'{}\' tried to join with an invalid session", gameprofile.getName());
+-                            new LoginHandler().fireEvents();
++//                            new LoginHandler().fireEvents();
+                         }
+                     } catch (AuthenticationUnavailableException authenticationunavailableexception) {
+                         if (LoginListener.this.server.R()) {
+-- 
+2.22.0.windows.1
+

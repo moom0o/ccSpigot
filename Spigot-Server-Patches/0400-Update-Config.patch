@@ -1,0 +1,22 @@
+From 829143151553dd57402f032a1d55493fbc092735 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Tue, 1 Sep 2020 21:51:37 -0400
+Subject: [PATCH] Update-Config
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index 163a3e5f7..4701c3173 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -172,7 +172,7 @@ public class ccSpigotConfig {
+ 
+     public static boolean DisableLightUpdates = false;
+     private static void LightUpdates() {
+-        DisableLightUpdates = getBoolean("settings.legacy.disable-light-updates", DisableLightUpdates);
++        DisableLightUpdates = getBoolean("legacydontuse.disable-light-updates", DisableLightUpdates);
+     }
+ 
+     public static Integer LightUpdateMAXTIME = 300;
+-- 
+2.22.0.windows.1
+
