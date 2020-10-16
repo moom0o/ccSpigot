@@ -1,0 +1,22 @@
+From 7001fa553a01a643bc6c6531dcb9463b6df98c65 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Mon, 14 Sep 2020 17:12:00 -0400
+Subject: [PATCH] aNoTher
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 6a66c098a..d1f6502f6 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -351,7 +351,7 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                 }
+                 // Paper end
+                 if(ccSpigotConfig.LimitEntitySpeed){
+-                    if(d10 - d9 > ccSpigotConfig.MaxEntitySpeed){
++                    if(d10 - d9 > ccSpigotConfig.MaxEntitySpeed && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName()))){
+                         if(!ccSpigotConfig.RemoveConsoleSpam){
+                             PlayerConnection.LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName(), this.player.getName(), Double.valueOf(d6), Double.valueOf(d7), Double.valueOf(d8));
+                         }
+-- 
+2.22.0.windows.1
+

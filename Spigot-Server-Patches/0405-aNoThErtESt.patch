@@ -1,0 +1,21 @@
+From 230b54bdaa4214706dd90e312e69496dc8e043fa Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Mon, 14 Sep 2020 01:19:59 -0400
+Subject: [PATCH] aNoThErtESt
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 6334f2a29..d637223fd 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -350,7 +350,6 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                 }
+                 // Paper end
+                 PlayerConnection.LOGGER.warn((d10 - d9));
+-                PlayerConnection.LOGGER.warn(Math.max(100.0D, Math.pow((double) (com.destroystokyo.paper.ccSpigotConfig.MaxEntitySpeed * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName())).toString());
+                 if (d10 - d9 > Math.max(100.0D, Math.pow((double) (com.destroystokyo.paper.ccSpigotConfig.MaxEntitySpeed * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName()))) { // Spigot
+                 // CraftBukkit end
+                     PlayerConnection.LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName(), this.player.getName(), Double.valueOf(d6), Double.valueOf(d7), Double.valueOf(d8));
+-- 
+2.22.0.windows.1
+

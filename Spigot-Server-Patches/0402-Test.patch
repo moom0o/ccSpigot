@@ -1,0 +1,34 @@
+From 844da9011770a352dc47503deb47f44dfb929afe Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Mon, 14 Sep 2020 00:12:09 -0400
+Subject: [PATCH] Test
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index 0a638ea5e..eb12da30d 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -186,6 +186,6 @@ public class ccSpigotConfig {
+     }
+     public static Double MaxEntitySpeed = 1.0D;
+     private static void EntitySpeed() {
+-        MaxEntitySpeed = getDouble("settings.light-update-max-time", MaxEntitySpeed);
++        MaxEntitySpeed = getDouble("settings.max-entity-speed", MaxEntitySpeed);
+     }
+ }
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index da969aa2b..2f12f885d 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -349,7 +349,7 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                     return;
+                 }
+                 // Paper end
+-
++                PlayerConnection.LOGGER.warn(Math.max(100.0D, Math.pow((double) (com.destroystokyo.paper.ccSpigotConfig.MaxEntitySpeed * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName())).toString())
+                 if (d10 - d9 > Math.max(100.0D, Math.pow((double) (com.destroystokyo.paper.ccSpigotConfig.MaxEntitySpeed * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName()))) { // Spigot
+                 // CraftBukkit end
+                     PlayerConnection.LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName(), this.player.getName(), Double.valueOf(d6), Double.valueOf(d7), Double.valueOf(d8));
+-- 
+2.22.0.windows.1
+

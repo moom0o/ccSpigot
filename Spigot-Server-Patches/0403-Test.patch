@@ -1,0 +1,21 @@
+From 2071d4d3e7a483122c82354a74cf9feec41f98dd Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Mon, 14 Sep 2020 00:24:43 -0400
+Subject: [PATCH] Test
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 2f12f885d..e563c49f0 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -349,6 +349,7 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                     return;
+                 }
+                 // Paper end
++                PlayerConnection.LOGGER.warn((d10 - d9).toString())
+                 PlayerConnection.LOGGER.warn(Math.max(100.0D, Math.pow((double) (com.destroystokyo.paper.ccSpigotConfig.MaxEntitySpeed * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName())).toString())
+                 if (d10 - d9 > Math.max(100.0D, Math.pow((double) (com.destroystokyo.paper.ccSpigotConfig.MaxEntitySpeed * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName()))) { // Spigot
+                 // CraftBukkit end
+-- 
+2.22.0.windows.1
+

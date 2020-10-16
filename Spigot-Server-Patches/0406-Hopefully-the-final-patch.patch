@@ -1,0 +1,116 @@
+From 79404b5d30148392727e8c88ede09b00621842b1 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Mon, 14 Sep 2020 02:02:11 -0400
+Subject: [PATCH] Hopefully-the-final-patch
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index eb12da30d..6136334a3 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -184,7 +184,23 @@ public class ccSpigotConfig {
+     private static void ChunkRelocation() {
+         DisableChunkRelocation = getBoolean("experimental.disable-chunk-relocation", DisableChunkRelocation);
+     }
+-    public static Double MaxEntitySpeed = 1.0D;
++
++    public static boolean LimitEntitySpeed = true;
++    private static void EntitySpeedLimit() {
++        LimitEntitySpeed = getBoolean("settings.limit-entity-speed", LimitEntitySpeed);
++    }
++
++    public static boolean DebugEntitySpeed = true;
++    private static void EntitySpeedDebug() {
++        DebugEntitySpeed = getBoolean("debug.debug-entity-speed", DebugEntitySpeed);
++    }
++
++    public static boolean RemoveConsoleSpam = true;
++    private static void ConsoleSpam() {
++        RemoveConsoleSpam = getBoolean("debug.remove-console-spam", RemoveConsoleSpam);
++    }
++
++    public static Double MaxEntitySpeed = 4.0D;
+     private static void EntitySpeed() {
+         MaxEntitySpeed = getDouble("settings.max-entity-speed", MaxEntitySpeed);
+     }
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index d637223fd..6a66c098a 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.server;
+ 
++import com.destroystokyo.paper.ccSpigotConfig;
+ import com.google.common.collect.Lists;
+ import com.google.common.primitives.Doubles;
+ import com.google.common.primitives.Floats;
+@@ -349,12 +350,27 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                     return;
+                 }
+                 // Paper end
+-                PlayerConnection.LOGGER.warn((d10 - d9));
+-                if (d10 - d9 > Math.max(100.0D, Math.pow((double) (com.destroystokyo.paper.ccSpigotConfig.MaxEntitySpeed * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName()))) { // Spigot
+-                // CraftBukkit end
+-                    PlayerConnection.LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName(), this.player.getName(), Double.valueOf(d6), Double.valueOf(d7), Double.valueOf(d8));
+-                    this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity));
+-                    return;
++                if(ccSpigotConfig.LimitEntitySpeed){
++                    if(d10 - d9 > ccSpigotConfig.MaxEntitySpeed){
++                        if(!ccSpigotConfig.RemoveConsoleSpam){
++                            PlayerConnection.LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName(), this.player.getName(), Double.valueOf(d6), Double.valueOf(d7), Double.valueOf(d8));
++                        }
++                        this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity));
++                        return;
++                    }
++                    if(ccSpigotConfig.DebugEntitySpeed){
++                        PlayerConnection.LOGGER.warn((d10 - d9));
++                    }
++
++                } else {
++                    if (d10 - d9 > Math.max(100.0D, Math.pow((double) (com.destroystokyo.paper.ccSpigotConfig.MaxEntitySpeed * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName()))) { // Spigot
++                        // CraftBukkit end
++                        if(!ccSpigotConfig.RemoveConsoleSpam){
++                            PlayerConnection.LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName(), this.player.getName(), Double.valueOf(d6), Double.valueOf(d7), Double.valueOf(d8));
++                        }
++                        this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity));
++                        return;
++                    }
+                 }
+ 
+                 boolean flag = worldserver.getCubes(entity, entity.getBoundingBox().shrink(0.0625D)).isEmpty();
+@@ -377,7 +393,9 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+ 
+                 if (d10 > org.spigotmc.SpigotConfig.movedWronglyThreshold) { // Spigot
+                     flag1 = true;
+-                    PlayerConnection.LOGGER.warn(entity.getName() + " (vehicle of " + this.player.getName() + ") moved wrongly!"); // Paper - More informative
++                    if(!ccSpigotConfig.RemoveConsoleSpam){
++                        PlayerConnection.LOGGER.warn(entity.getName() + " (vehicle of " + this.player.getName() + ") moved wrongly!"); // Paper - More informative
++                    }
+                 }
+                 Location curPos = this.getPlayer().getLocation(); // Spigot
+ 
+@@ -600,7 +618,9 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+ 
+                                 if (d11 - d10 > Math.max(f2, Math.pow((double) (org.spigotmc.SpigotConfig.movedTooQuicklyMultiplier * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(this.player.getName()))) { // Spigot
+                                 // CraftBukkit end
+-                                    PlayerConnection.LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName(), Double.valueOf(d7), Double.valueOf(d8), Double.valueOf(d9));
++                                    if(!ccSpigotConfig.RemoveConsoleSpam){
++                                        PlayerConnection.LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName(), Double.valueOf(d7), Double.valueOf(d8), Double.valueOf(d9));
++                                    }
+                                     this.a(this.player.locX, this.player.locY, this.player.locZ, this.player.yaw, this.player.pitch);
+                                     return;
+                                 }
+@@ -658,7 +678,9 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+ 
+                             if (!this.player.L() && d11 > org.spigotmc.SpigotConfig.movedWronglyThreshold && !this.player.isSleeping() && !this.player.playerInteractManager.isCreative() && this.player.playerInteractManager.getGameMode() != EnumGamemode.SPECTATOR) { // Spigot
+                                 flag1 = true;
+-                                PlayerConnection.LOGGER.warn("{} moved wrongly!", this.player.getName());
++                                if(!ccSpigotConfig.RemoveConsoleSpam){
++                                    PlayerConnection.LOGGER.warn("{} moved wrongly!", this.player.getName());
++                                }
+                             }
+ 
+                             this.player.setLocation(d4, d5, d6, f, f1);
+-- 
+2.22.0.windows.1
+

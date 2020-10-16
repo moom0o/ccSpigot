@@ -1,0 +1,35 @@
+From e1e75e659a24d8440d1bf66b3ef75b2325efad8e Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Sun, 13 Sep 2020 22:48:41 -0400
+Subject: [PATCH] Test-Patch-Entityspeed
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index 4701c3173..0a638ea5e 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -184,4 +184,8 @@ public class ccSpigotConfig {
+     private static void ChunkRelocation() {
+         DisableChunkRelocation = getBoolean("experimental.disable-chunk-relocation", DisableChunkRelocation);
+     }
++    public static Double MaxEntitySpeed = 1.0D;
++    private static void EntitySpeed() {
++        MaxEntitySpeed = getDouble("settings.light-update-max-time", MaxEntitySpeed);
++    }
+ }
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 59d526329..da969aa2b 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -350,7 +350,7 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                 }
+                 // Paper end
+ 
+-                if (d10 - d9 > Math.max(100.0D, Math.pow((double) (org.spigotmc.SpigotConfig.movedTooQuicklyMultiplier * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName()))) { // Spigot
++                if (d10 - d9 > Math.max(100.0D, Math.pow((double) (com.destroystokyo.paper.ccSpigotConfig.MaxEntitySpeed * (float) i * speed), 2)) && (!this.minecraftServer.R() || !this.minecraftServer.Q().equals(entity.getName()))) { // Spigot
+                 // CraftBukkit end
+                     PlayerConnection.LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName(), this.player.getName(), Double.valueOf(d6), Double.valueOf(d7), Double.valueOf(d8));
+                     this.networkManager.sendPacket(new PacketPlayOutVehicleMove(entity));
+-- 
+2.22.0.windows.1
+
