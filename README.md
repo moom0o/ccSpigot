@@ -15,6 +15,12 @@ Disable ALL light updates! This will prevent all the lag that comes from them. D
 Change the server brand from Paper to whatever you want! This is shown on futureclient/in the f3 menu.
 ### disable-chunk-relocation
 This will disable the chunk relocation feature for when you have a corrupted world. This seems to have a ton of false positives for me. Remember this is experimental and may brick your server. It is disabled by default.
+### limit-entity-speed
+Experimental feature where you can restrict entity speed (Do not enable without first changing maxentityspeed to your liking, VERY buggy)
+### debug-entity-speed
+Shows you how fast players are going on entities so you can tweak max-entity-speed
+### remove-console-spam 
+Remove the console spam messages like Player_X went too fast!
 ## Changes from paper
 ### Autosave
 The autosave is now using paper's instead of bukkit by default. This is a lot better.
