@@ -12,7 +12,7 @@ Max time for light updates, this option is much better than disable-light-update
 ### disable-light-updates
 Disable ALL light updates! This will prevent all the lag that comes from them. DO NOT USE. USE LIGHT-UPDATE-MAX-TIME
 ### server-brand
-Change the server brand from Paper to whatever you want! This is shown on futureclient/in the f3 menu.
+Change the server brand from Paper to whatever you want! This is shown on some clients/in the f3 menu.
 ### disable-chunk-relocation
 This will disable the chunk relocation feature for when you have a corrupted world. This seems to have a ton of false positives for me. Remember this is experimental and may brick your server. It is disabled by default.
 ### limit-entity-speed
