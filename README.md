@@ -21,6 +21,17 @@ Experimental feature where you can restrict entity speed (Do not enable without 
 Shows you how fast players are going on entities so you can tweak max-entity-speed
 ### remove-console-spam 
 Remove the console spam messages like Player_X went too fast!
+### hide-player-ip-addresses-from-console
+Hide player ips from when players join your server.
+### hide-player-coordinates-from-console
+Hide player coordinates from when players join your server.
+### remove-default-connection-msgs-from-console
+Removes the connection messages from console for when players join your server. This will not remove the messages ingame.
+### remove-player-commands-from-console
+Hide player commands from console. Useful to hide messages/spam
+### disable-chunk-loading
+Disable all chunks being sent to the player. This is like the 2b2t queue where no chunks are sent to you. All you see is "Waiting for chunk..." Great for queue/auth servers where you want to limit bandwidth usage.
+
 ## Changes from paper
 ### Autosave
 The autosave is now using paper's instead of bukkit by default. This is a lot better.
