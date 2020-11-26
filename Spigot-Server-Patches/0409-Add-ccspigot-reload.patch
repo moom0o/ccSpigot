@@ -1,0 +1,51 @@
+From c1dba329f97b5e38da2f71be5da6571a4b777f00 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Wed, 21 Oct 2020 22:01:16 -0400
+Subject: [PATCH] Add-ccspigot-reload
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperCommand.java b/src/main/java/com/destroystokyo/paper/PaperCommand.java
+index 1898ab897..f01cf5ee4 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperCommand.java
++++ b/src/main/java/com/destroystokyo/paper/PaperCommand.java
+@@ -184,11 +184,13 @@ public class PaperCommand extends Command {
+ 
+         MinecraftServer console = MinecraftServer.getServer();
+         com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings"));
++        com.destroystokyo.paper.ccSpigotConfig.init((File) console.options.valueOf("ccspigot-settings"));
+         for (WorldServer world : console.worlds) {
+             world.paperConfig.init();
+         }
+         console.server.reloadCount++;
+ 
+         Command.broadcastCommandMessage(sender, ChatColor.GREEN + "Paper config reload complete.");
++        Command.broadcastCommandMessage(sender, ChatColor.GREEN + "ccSpigot config reload complete.");
+     }
+ }
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index 9f67b151b..bcb565a98 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -29,7 +29,9 @@ import org.spigotmc.WatchdogThread;
+ public class ccSpigotConfig {
+ 
+     private static File CONFIG_FILE;
+-    private static final String HEADER = "This is the main configuration file for ccSpigot.\n";
++    private static final String HEADER = "This is the main configuration file for ccSpigot.\n"
++        + "Make sure you know what these values do. You can find the list at https://github.com/moom0o/ccSpigot"
++        + "Do not enable the experimental options. These may cause issues to your server. Only enable them if you know what you're doing.";
+     /*========================================================================*/
+     public static YamlConfiguration config;
+     static int version;
+@@ -190,7 +192,7 @@ public class ccSpigotConfig {
+         LimitEntitySpeed = getBoolean("experimental.limit-entity-speed", LimitEntitySpeed);
+     }
+ 
+-    public static boolean DebugEntitySpeed = true;
++    public static boolean DebugEntitySpeed = false;
+     private static void EntitySpeedDebug() {
+         DebugEntitySpeed = getBoolean("debug.debug-entity-speed", DebugEntitySpeed);
+     }
+-- 
+2.22.0.windows.1
+

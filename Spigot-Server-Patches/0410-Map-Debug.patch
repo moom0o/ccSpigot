@@ -1,0 +1,111 @@
+From 55031452ee532a8a205f623c39f7ad139f5f437a Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Sat, 24 Oct 2020 17:58:01 -0400
+Subject: [PATCH] Map-Debug
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index bcb565a98..288c5c535 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -202,6 +202,11 @@ public class ccSpigotConfig {
+         RemoveConsoleSpam = getBoolean("debug.remove-console-spam", RemoveConsoleSpam);
+     }
+ 
++    public static boolean DebugMaps = false;
++    private static void mapdebug() {
++        DebugMaps = getBoolean("debug.debug-maps", DebugMaps);
++    }
++
+     public static Double MaxEntitySpeed = 4.0D;
+     private static void EntitySpeed() {
+         MaxEntitySpeed = getDouble("settings.max-entity-speed", MaxEntitySpeed);
+diff --git a/src/main/java/net/minecraft/server/ItemWorldMap.java b/src/main/java/net/minecraft/server/ItemWorldMap.java
+index e0799ff00..af4dc65ec 100644
+--- a/src/main/java/net/minecraft/server/ItemWorldMap.java
++++ b/src/main/java/net/minecraft/server/ItemWorldMap.java
+@@ -1,11 +1,13 @@
+ package net.minecraft.server;
+ 
++import com.destroystokyo.paper.ccSpigotConfig;
+ import com.google.common.collect.HashMultiset;
+ import com.google.common.collect.Iterables;
+ import com.google.common.collect.Multisets;
+ import javax.annotation.Nullable;
+ 
+ // CraftBukkit start
++import com.sun.media.jfxmedia.logging.Logger;
+ import org.bukkit.Bukkit;
+ import org.bukkit.event.server.MapInitializeEvent;
+ // CraftBukkit end
+@@ -20,6 +22,9 @@ public class ItemWorldMap extends ItemWorldMapBase {
+         World worldMain = world.getServer().getServer().worlds.get(0); // CraftBukkit - store reference to primary world
+         ItemStack itemstack = new ItemStack(Items.FILLED_MAP, 1, worldMain.b("map")); // CraftBukkit - use primary world for maps
+         String s = "map_" + itemstack.getData();
++        if(ccSpigotConfig.DebugMaps){
++            System.out.println("map_" + itemstack.getData());
++        }
+         WorldMap worldmap = new WorldMap(s);
+ 
+         worldMain.a(s, (PersistentBase) worldmap); // CraftBukkit
+@@ -37,11 +42,17 @@ public class ItemWorldMap extends ItemWorldMapBase {
+     public WorldMap getSavedMap(ItemStack itemstack, World world) {
+         World worldMain = world.getServer().getServer().worlds.get(0); // CraftBukkit - store reference to primary world
+         String s = "map_" + itemstack.getData();
++        if(ccSpigotConfig.DebugMaps){
++            System.out.println("map_" + itemstack.getData());
++        }
+         WorldMap worldmap = (WorldMap) worldMain.a(WorldMap.class, s); // CraftBukkit - use primary world for maps
+ 
+         if (worldmap == null && !world.isClientSide) {
+             itemstack.setData(worldMain.b("map")); // CraftBukkit - use primary world for maps
+             s = "map_" + itemstack.getData();
++            if(ccSpigotConfig.DebugMaps){
++                System.out.println("map_" + itemstack.getData());
++            }
+             worldmap = new WorldMap(s);
+             worldmap.scale = 3;
+             worldmap.a((double) world.getWorldData().b(), (double) world.getWorldData().d(), worldmap.scale);
+@@ -325,6 +336,9 @@ public class ItemWorldMap extends ItemWorldMapBase {
+ 
+         world = world.getServer().getServer().worlds.get(0); // CraftBukkit - use primary world for maps
+         itemstack.setData(world.b("map"));
++        if(ccSpigotConfig.DebugMaps){
++            System.out.println("map_" + itemstack.getData());
++        }
+         WorldMap worldmap1 = new WorldMap("map_" + itemstack.getData());
+ 
+         if (worldmap != null) {
+@@ -334,6 +348,9 @@ public class ItemWorldMap extends ItemWorldMapBase {
+             worldmap1.map = worldmap.map;
+             worldmap1.c();
+             world.a("map_" + itemstack.getData(), (PersistentBase) worldmap1);
++            if(ccSpigotConfig.DebugMaps){
++                System.out.println("map_" + itemstack.getData());
++            }
+             // CraftBukkit start
+             MapInitializeEvent event = new MapInitializeEvent(worldmap1.mapView);
+             Bukkit.getServer().getPluginManager().callEvent(event);
+@@ -348,6 +365,9 @@ public class ItemWorldMap extends ItemWorldMapBase {
+         world = world.getServer().getServer().worlds.get(0); // CraftBukkit - use primary world for maps
+         itemstack.setData(world.b("map"));
+         WorldMap worldmap1 = new WorldMap("map_" + itemstack.getData());
++        if(ccSpigotConfig.DebugMaps){
++            System.out.println("map_" + itemstack.getData());
++        }
+ 
+         worldmap1.track = true;
+         if (worldmap != null) {
+@@ -357,6 +377,9 @@ public class ItemWorldMap extends ItemWorldMapBase {
+             worldmap1.map = worldmap.map;
+             worldmap1.c();
+             world.a("map_" + itemstack.getData(), (PersistentBase) worldmap1);
++            if(ccSpigotConfig.DebugMaps){
++                System.out.println("map_" + itemstack.getData());
++            }
+             // CraftBukkit start
+             MapInitializeEvent event = new MapInitializeEvent(worldmap1.mapView);
+             Bukkit.getServer().getPluginManager().callEvent(event);
+-- 
+2.22.0.windows.1
+

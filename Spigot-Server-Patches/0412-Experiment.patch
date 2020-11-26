@@ -1,0 +1,93 @@
+From 597cea5c5f8c2cade674e487c12d52332ae73d6b Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Wed, 25 Nov 2020 17:04:12 -0500
+Subject: [PATCH] Experiment
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index c3178358c..6a3a6a1a7 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -30,7 +30,7 @@ public class ccSpigotConfig {
+ 
+     private static File CONFIG_FILE;
+     private static final String HEADER = "This is the main configuration file for ccSpigot.\n"
+-        + "Make sure you know what these values do. You can find the list at https://github.com/moom0o/ccSpigot"
++        + "Make sure you know what these values do. You can find the list at https://github.com/moom0o/ccSpigot "
+         + "Do not enable the experimental options. These may cause issues to your server. Only enable them if you know what you're doing.";
+     /*========================================================================*/
+     public static YamlConfiguration config;
+@@ -212,16 +212,15 @@ public class ccSpigotConfig {
+         HidePlayerCommands = getBoolean("debug.remove-player-commands-from-console", HidePlayerCommands);
+     }
+ 
+-    public static boolean HideConsoleChat = false;
+-    private static void HideChat() {
+-        HideConsoleChat = getBoolean("debug.remove-player-chat-from-console", HideConsoleChat);
+-    }
+-
+     public static boolean DebugEntitySpeed = false;
+     private static void EntitySpeedDebug() {
+         DebugEntitySpeed = getBoolean("debug.debug-entity-speed", DebugEntitySpeed);
+     }
+ 
++    public static boolean DisableChunkLoading = false;
++    private static void DisableChunks() {
++        DisableChunkLoading = getBoolean("experimental.disable-chunk-loading", DisableChunkLoading);
++    }
+     public static boolean RemoveConsoleSpam = true;
+     private static void ConsoleSpam() {
+         RemoveConsoleSpam = getBoolean("debug.remove-console-spam", RemoveConsoleSpam);
+diff --git a/src/main/java/net/minecraft/server/EULA.java b/src/main/java/net/minecraft/server/EULA.java
+index 3623751bf..86c3e663e 100644
+--- a/src/main/java/net/minecraft/server/EULA.java
++++ b/src/main/java/net/minecraft/server/EULA.java
+@@ -52,7 +52,7 @@ public class EULA {
+             fileoutputstream = new FileOutputStream(this.b);
+             properties.setProperty("eula", "false");
+             properties.store(fileoutputstream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (https://account.mojang.com/documents/minecraft_eula)." +
+-                    "\nand also agreeing that tacos are tasty.");  // Paper - fix lag
++                    "\nand also agreeing to microsoft selling all your data");  // Paper - fix lag // ccSpigot - fixing more lag :)
+         } catch (Exception exception) {
+             EULA.a.warn("Failed to save {}", this.b, exception);
+         } finally {
+diff --git a/src/main/java/net/minecraft/server/PlayerChunk.java b/src/main/java/net/minecraft/server/PlayerChunk.java
+index baf72404e..08b1f0212 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunk.java
++++ b/src/main/java/net/minecraft/server/PlayerChunk.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.server;
+ 
++import com.destroystokyo.paper.ccSpigotConfig;
+ import com.google.common.base.Predicate;
+ import com.google.common.collect.Iterables;
+ import com.google.common.collect.Lists;
+@@ -74,7 +75,9 @@ public class PlayerChunk {
+             //     this.sendChunk(entityplayer);
+             // }
+             if (this.done) {
+-                this.sendChunk(entityplayer);
++                if(!ccSpigotConfig.DisableChunkLoading){
++                    this.sendChunk(entityplayer);
++                }
+             }
+             // CraftBukkit end
+ 
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index a82b09aad..60a7df644 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -1175,7 +1175,9 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+             this.processedDisconnect = true;
+         }
+         // CraftBukkit end
+-        PlayerConnection.LOGGER.info("{} lost connection: {}", this.player.getName(), ichatbasecomponent.toPlainText());
++        if(!ccSpigotConfig.RemoveConnectionMessages){
++            PlayerConnection.LOGGER.info("{} lost connection: {}", this.player.getName(), ichatbasecomponent.toPlainText());
++        }
+         // CraftBukkit start - Replace vanilla quit message handling with our own.
+         /*
+         this.minecraftServer.aD();
+-- 
+2.22.0.windows.1
+

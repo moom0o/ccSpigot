@@ -1,0 +1,43 @@
+From 775e582c663af3e3335b02bbfec1f069577922fc Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Wed, 25 Nov 2020 22:10:49 -0500
+Subject: [PATCH] Another-Modification
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 60a7df644..c806a8f80 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -149,8 +149,10 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+         this.processedMovePackets = this.receivedMovePackets;
+         if (this.B) {
+             if (++this.C > 80) {
+-                PlayerConnection.LOGGER.warn("{} was kicked for floating too long!", this.player.getName());
+-                this.disconnect(com.destroystokyo.paper.PaperConfig.flyingKickPlayerMessage); // Paper - use configurable kick message
++                if(!ccSpigotConfig.DisableChunkLoading){
++                    PlayerConnection.LOGGER.warn("{} was kicked for floating too long!", this.player.getName());
++                    this.disconnect(com.destroystokyo.paper.PaperConfig.flyingKickPlayerMessage); // Paper - use configurable kick message
++                }
+                 return;
+             }
+         } else {
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 11a9add78..1a9fbbd70 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1255,11 +1255,7 @@ public final class CraftServer implements Server {
+ 
+     @Override
+     public boolean getAllowFlight() {
+-        if(ccSpigotConfig.DisableChunkLoading){
+-            return true;
+-        } else {
+-            return console.getAllowFlight();
+-        }
++        return console.getAllowFlight();
+     }
+ 
+     @Override
+-- 
+2.22.0.windows.1
+

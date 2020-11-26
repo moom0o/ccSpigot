@@ -1,0 +1,259 @@
+From 4fe2c26bfa1f49320b2b00e26ef14716910961f7 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Wed, 25 Nov 2020 18:30:36 -0500
+Subject: [PATCH] Modify-Disable-Chunk-Loading
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerChunk.java b/src/main/java/net/minecraft/server/PlayerChunk.java
+index 08b1f0212..3955cdfec 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunk.java
++++ b/src/main/java/net/minecraft/server/PlayerChunk.java
+@@ -62,51 +62,53 @@ public class PlayerChunk {
+     }
+ 
+     public void a(final EntityPlayer entityplayer) { // CraftBukkit - added final to argument
+-        if (this.c.contains(entityplayer)) {
+-            PlayerChunk.a.debug("Failed to add player. {} already is in chunk {}, {}", entityplayer, Integer.valueOf(this.location.x), Integer.valueOf(this.location.z));
+-        } else {
+-            if (this.c.isEmpty()) {
+-                this.i = this.playerChunkMap.getWorld().getTime();
+-            }
++        if(!ccSpigotConfig.DisableChunkLoading) {
++            if (this.c.contains(entityplayer)) {
++                PlayerChunk.a.debug("Failed to add player. {} already is in chunk {}, {}", entityplayer, Integer.valueOf(this.location.x), Integer.valueOf(this.location.z));
++            } else {
++                if (this.c.isEmpty()) {
++                    this.i = this.playerChunkMap.getWorld().getTime();
++                }
+ 
+-            this.c.add(entityplayer);
+-            // CraftBukkit start - use async chunk io
+-            // if (this.done) {
+-            //     this.sendChunk(entityplayer);
+-            // }
+-            if (this.done) {
+-                if(!ccSpigotConfig.DisableChunkLoading){
++                this.c.add(entityplayer);
++                // CraftBukkit start - use async chunk io
++                // if (this.done) {
++                //     this.sendChunk(entityplayer);
++                // }
++                if (this.done) {
+                     this.sendChunk(entityplayer);
+                 }
+-            }
+-            // CraftBukkit end
++                // CraftBukkit end
+ 
++            }
+         }
+     }
+ 
+     public void b(EntityPlayer entityplayer) {
+-        if (this.c.contains(entityplayer)) {
+-            // CraftBukkit start - If we haven't loaded yet don't load the chunk just so we can clean it up
+-            if (!this.done) {
+-                this.c.remove(entityplayer);
++        if (!ccSpigotConfig.DisableChunkLoading) {
++            if (this.c.contains(entityplayer)) {
++                // CraftBukkit start - If we haven't loaded yet don't load the chunk just so we can clean it up
++                if (!this.done) {
++                    this.c.remove(entityplayer);
++
++                    if (this.c.isEmpty()) {
++                        ChunkIOExecutor.dropQueuedChunkLoad(this.playerChunkMap.getWorld(), this.location.x, this.location.z, this.loadedRunnable);
++                        this.playerChunkMap.b(this);
++                    }
++
++                    return;
++                }
++                // CraftBukkit end
++                if (this.done) {
++                    entityplayer.playerConnection.sendPacket(new PacketPlayOutUnloadChunk(this.location.x, this.location.z));
++                }
+ 
++                this.c.remove(entityplayer);
+                 if (this.c.isEmpty()) {
+-                    ChunkIOExecutor.dropQueuedChunkLoad(this.playerChunkMap.getWorld(), this.location.x, this.location.z, this.loadedRunnable);
+                     this.playerChunkMap.b(this);
+                 }
+ 
+-                return;
+-            }
+-            // CraftBukkit end
+-            if (this.done) {
+-                entityplayer.playerConnection.sendPacket(new PacketPlayOutUnloadChunk(this.location.x, this.location.z));
+-            }
+-
+-            this.c.remove(entityplayer);
+-            if (this.c.isEmpty()) {
+-                this.playerChunkMap.b(this);
+             }
+-
+         }
+     }
+ 
+@@ -160,10 +162,12 @@ public class PlayerChunk {
+     }
+ 
+     public void sendChunk(EntityPlayer entityplayer) {
+-        if (this.done) {
+-            this.chunk.world.chunkPacketBlockController.onChunkPacketCreate(this.chunk, '\uffff', true); // Paper - Anti-Xray - Load nearby chunks if necessary
+-            entityplayer.playerConnection.sendPacket(new PacketPlayOutMapChunk(this.chunk, '\uffff'));
+-            this.playerChunkMap.getWorld().getTracker().a(entityplayer, this.chunk);
++        if (!ccSpigotConfig.DisableChunkLoading) {
++            if (this.done) {
++                this.chunk.world.chunkPacketBlockController.onChunkPacketCreate(this.chunk, '\uffff', true); // Paper - Anti-Xray - Load nearby chunks if necessary
++                entityplayer.playerConnection.sendPacket(new PacketPlayOutMapChunk(this.chunk, '\uffff'));
++                this.playerChunkMap.getWorld().getTracker().a(entityplayer, this.chunk);
++            }
+         }
+     }
+ 
+@@ -178,24 +182,26 @@ public class PlayerChunk {
+     }
+ 
+     public void a(int i, int j, int k) {
+-        if (this.done) {
+-            if (this.dirtyCount == 0) {
+-                this.playerChunkMap.a(this);
+-            }
++        if(!ccSpigotConfig.DisableChunkLoading) {
++            if (this.done) {
++                if (this.dirtyCount == 0) {
++                    this.playerChunkMap.a(this);
++                }
+ 
+-            this.h |= 1 << (j >> 4);
+-            if (this.dirtyCount < 64) {
+-                short short0 = (short) (i << 12 | k << 8 | j);
++                this.h |= 1 << (j >> 4);
++                if (this.dirtyCount < 64) {
++                    short short0 = (short) (i << 12 | k << 8 | j);
+ 
+-                for (int l = 0; l < this.dirtyCount; ++l) {
+-                    if (this.dirtyBlocks[l] == short0) {
+-                        return;
++                    for (int l = 0; l < this.dirtyCount; ++l) {
++                        if (this.dirtyBlocks[l] == short0) {
++                            return;
++                        }
+                     }
++
++                    this.dirtyBlocks[this.dirtyCount++] = short0;
+                 }
+ 
+-                this.dirtyBlocks[this.dirtyCount++] = short0;
+             }
+-
+         }
+     }
+ 
+@@ -209,43 +215,45 @@ public class PlayerChunk {
+     }
+ 
+     public void d() {
+-        if (this.done && this.chunk != null) {
+-            if (this.dirtyCount != 0) {
+-                int i;
+-                int j;
+-                int k;
+-
+-                if (this.dirtyCount == 1) {
+-                    i = (this.dirtyBlocks[0] >> 12 & 15) + this.location.x * 16;
+-                    j = this.dirtyBlocks[0] & 255;
+-                    k = (this.dirtyBlocks[0] >> 8 & 15) + this.location.z * 16;
+-                    BlockPosition blockposition = new BlockPosition(i, j, k);
+-
+-                    this.a((Packet) (new PacketPlayOutBlockChange(this.playerChunkMap.getWorld(), blockposition)));
+-                    if (this.playerChunkMap.getWorld().getType(blockposition).getBlock().isTileEntity()) {
+-                        this.a(this.playerChunkMap.getWorld().getTileEntity(blockposition));
+-                    }
+-                } else if (this.dirtyCount == 64) {
+-                    // Paper - Anti-Xray - Loading chunks here could cause a ConcurrentModificationException #1104
+-                    //this.chunk.world.chunkPacketBlockController.onChunkPacketCreate(this.chunk, this.h, true); // Paper - Anti-Xray - Load nearby chunks if necessary
+-                    this.a((Packet) (new PacketPlayOutMapChunk(this.chunk, this.h)));
+-                } else {
+-                    this.a((Packet) (new PacketPlayOutMultiBlockChange(this.dirtyCount, this.dirtyBlocks, this.chunk)));
+-
+-                    for (i = 0; i < this.dirtyCount; ++i) {
+-                        j = (this.dirtyBlocks[i] >> 12 & 15) + this.location.x * 16;
+-                        k = this.dirtyBlocks[i] & 255;
+-                        int l = (this.dirtyBlocks[i] >> 8 & 15) + this.location.z * 16;
+-                        BlockPosition blockposition1 = new BlockPosition(j, k, l);
+-
+-                        if (this.playerChunkMap.getWorld().getType(blockposition1).getBlock().isTileEntity()) {
+-                            this.a(this.playerChunkMap.getWorld().getTileEntity(blockposition1));
++        if(!ccSpigotConfig.DisableChunkLoading) {
++            if (this.done && this.chunk != null) {
++                if (this.dirtyCount != 0) {
++                    int i;
++                    int j;
++                    int k;
++
++                    if (this.dirtyCount == 1) {
++                        i = (this.dirtyBlocks[0] >> 12 & 15) + this.location.x * 16;
++                        j = this.dirtyBlocks[0] & 255;
++                        k = (this.dirtyBlocks[0] >> 8 & 15) + this.location.z * 16;
++                        BlockPosition blockposition = new BlockPosition(i, j, k);
++
++                        this.a((Packet) (new PacketPlayOutBlockChange(this.playerChunkMap.getWorld(), blockposition)));
++                        if (this.playerChunkMap.getWorld().getType(blockposition).getBlock().isTileEntity()) {
++                            this.a(this.playerChunkMap.getWorld().getTileEntity(blockposition));
++                        }
++                    } else if (this.dirtyCount == 64) {
++                        // Paper - Anti-Xray - Loading chunks here could cause a ConcurrentModificationException #1104
++                        //this.chunk.world.chunkPacketBlockController.onChunkPacketCreate(this.chunk, this.h, true); // Paper - Anti-Xray - Load nearby chunks if necessary
++                        this.a((Packet) (new PacketPlayOutMapChunk(this.chunk, this.h)));
++                    } else {
++                        this.a((Packet) (new PacketPlayOutMultiBlockChange(this.dirtyCount, this.dirtyBlocks, this.chunk)));
++
++                        for (i = 0; i < this.dirtyCount; ++i) {
++                            j = (this.dirtyBlocks[i] >> 12 & 15) + this.location.x * 16;
++                            k = this.dirtyBlocks[i] & 255;
++                            int l = (this.dirtyBlocks[i] >> 8 & 15) + this.location.z * 16;
++                            BlockPosition blockposition1 = new BlockPosition(j, k, l);
++
++                            if (this.playerChunkMap.getWorld().getType(blockposition1).getBlock().isTileEntity()) {
++                                this.a(this.playerChunkMap.getWorld().getTileEntity(blockposition1));
++                            }
+                         }
+                     }
+-                }
+ 
+-                this.dirtyCount = 0;
+-                this.h = 0;
++                    this.dirtyCount = 0;
++                    this.h = 0;
++                }
+             }
+         }
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index db83d6787..11a9add78 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
+ 
+ import javax.imageio.ImageIO;
+ 
++import com.destroystokyo.paper.ccSpigotConfig;
+ import net.minecraft.server.*;
+ 
+ import org.bukkit.BanList;
+@@ -1254,7 +1255,11 @@ public final class CraftServer implements Server {
+ 
+     @Override
+     public boolean getAllowFlight() {
+-        return console.getAllowFlight();
++        if(ccSpigotConfig.DisableChunkLoading){
++            return true;
++        } else {
++            return console.getAllowFlight();
++        }
+     }
+ 
+     @Override
+-- 
+2.22.0.windows.1
+
