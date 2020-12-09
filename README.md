@@ -1,9 +1,9 @@
 # ccSpigot
-A paper fork that aims to prevent skylight lag and allow changing the server brand.
+A paper fork/1.12 continuation that aims to prevent skylight lag, allow changing the server brand, and more.
 <br>
-If you want to patch more exploits other than lightlag use my bukkit plugin https://github.com/moom0o/AnarchyExploitFixes
+If you want to patch more exploits other than these use my bukkit plugin https://github.com/moom0o/AnarchyExploitFixes
 <br>
-Don't say anything about those patches that have shit code! I don't know how to use git ROFL
+I don't know how to properly use the shitty Git patching system, so just deal with having a bunch of shitty patches.
 ## Config options
 These options are in ccspigot.yml (we now have our own config!).
 
