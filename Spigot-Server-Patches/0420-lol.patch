@@ -1,0 +1,50 @@
+From dbb0f7f6f889245886e122502705df94069d2a7a Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Wed, 9 Dec 2020 16:27:30 -0500
+Subject: [PATCH] lol
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerChunk.java b/src/main/java/net/minecraft/server/PlayerChunk.java
+index 44a4eb670..c629a86ab 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunk.java
++++ b/src/main/java/net/minecraft/server/PlayerChunk.java
+@@ -90,7 +90,9 @@ public class PlayerChunk {
+ 
+                 }
+             } else {
+-                System.out.println("Contains " + entityplayer.getName());
++                if(ccSpigotConfig.DebugDisableChunksSpeed){
++                    System.out.println("Contains " + entityplayer.getName());
++                }
+             }
+         }
+     }
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index b96f66bbe..9a60a66bc 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -739,6 +739,21 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+ 
+                                 // Skip the first time we do this
+                                 if (from.getX() != Double.MAX_VALUE) {
++                                    double distX = to.getX() - from.getX();
++                                    double distZ = to.getZ() - from.getZ();
++                                    double finalValue = Math.hypot(distX, distZ);
++                                    if(finalValue > ccSpigotConfig.DisableChunkLoadingSpeed){
++                                        net.minecraft.server.PlayerChunk.fastplayers.add(player.getName());
++                                        if(ccSpigotConfig.DebugDisableChunksSpeed){
++                                            System.out.println("fast added " + finalValue);
++                                        }
++                                    } else {
++                                        PlayerChunk.fastplayers.remove(player.getName());
++                                        if(ccSpigotConfig.DebugDisableChunksSpeed){
++                                            System.out.println("fast removed " + finalValue);
++                                        }
++                                    }
++
+                                     Location oldTo = to.clone();
+                                     PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
+                                     this.server.getPluginManager().callEvent(event);
+-- 
+2.22.0.windows.1
+

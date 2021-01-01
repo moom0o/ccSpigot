@@ -1,11 +1,11 @@
-From 2d01972f1faeef0927f8bceefc4fa51a396e68c7 Mon Sep 17 00:00:00 2001
+From 9fee9e7c88a3c8ae1c7e7c7662a74381934608e7 Mon Sep 17 00:00:00 2001
 From: moo <moo@moo.moo>
 Date: Mon, 17 Aug 2020 12:31:25 -0400
 Subject: [PATCH] First-Changes
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/PaperConfig.java b/src/main/java/com/destroystokyo/paper/PaperConfig.java
-index d8b0a868..e361cf61 100644
+index d8b0a8688..e361cf61f 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperConfig.java
 @@ -218,6 +218,16 @@ public class PaperConfig {
@@ -33,7 +33,7 @@ index d8b0a868..e361cf61 100644
 +}
 \ No newline at end of file
 diff --git a/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java b/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java
-index 897bb49b..78978ffe 100644
+index 897bb49b4..78978ffe2 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperWorldConfig.java
 @@ -143,7 +143,7 @@ public class PaperWorldConfig {
@@ -65,7 +65,7 @@ index 897bb49b..78978ffe 100644
 +}
 \ No newline at end of file
 diff --git a/src/main/java/net/minecraft/server/Chunk.java b/src/main/java/net/minecraft/server/Chunk.java
-index 4060fd27..43bde467 100644
+index 4060fd274..43bde4679 100644
 --- a/src/main/java/net/minecraft/server/Chunk.java
 +++ b/src/main/java/net/minecraft/server/Chunk.java
 @@ -1534,10 +1534,13 @@ public class Chunk {
@@ -86,7 +86,7 @@ index 4060fd27..43bde467 100644
      }
      // Paper end
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 3b982f99..ae97e630 100644
+index 3b982f990..ae97e6301 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -1156,7 +1156,7 @@ public abstract class MinecraftServer implements ICommandListener, Runnable, IAs
@@ -99,7 +99,7 @@ index 3b982f99..ae97e630 100644
  
      public CrashReport b(CrashReport crashreport) {
 diff --git a/src/main/resources/configurations/bukkit.yml b/src/main/resources/configurations/bukkit.yml
-index 67ea88a4..80f0f932 100644
+index 67ea88a4c..80f0f9329 100644
 --- a/src/main/resources/configurations/bukkit.yml
 +++ b/src/main/resources/configurations/bukkit.yml
 @@ -33,5 +33,5 @@ chunk-gc:

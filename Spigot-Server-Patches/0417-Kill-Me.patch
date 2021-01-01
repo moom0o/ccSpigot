@@ -1,0 +1,22 @@
+From d3b0b300ea32ec671fb17ed3728799dc72ad53f8 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Tue, 8 Dec 2020 23:39:07 -0500
+Subject: [PATCH] Kill-Me
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 0a4e0be07..8c1781741 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -449,7 +449,7 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                     double distZ = to.getZ() - from.getZ();
+                     double finalValue = Math.hypot(distX, distZ);
+ 
+-                    if(!(finalValue > ccSpigotConfig.DisableChunkLoadingSpeed)){
++                    if(finalValue > ccSpigotConfig.DisableChunkLoadingSpeed){
+                         if(!(PlayerChunk.fastplayers.contains(player.getName()))){
+                             net.minecraft.server.PlayerChunk.fastplayers.add(player.getName());
+                         }
+-- 
+2.22.0.windows.1
+

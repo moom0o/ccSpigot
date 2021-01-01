@@ -1,0 +1,128 @@
+From e0572f663805ef319f023f21721e064e77fe7191 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Tue, 8 Dec 2020 21:39:29 -0500
+Subject: [PATCH] Add-Chunk-Disable-Option-At-Certain-Speed
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index 6a3a6a1a7..f5dba13f8 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -221,11 +221,16 @@ public class ccSpigotConfig {
+     private static void DisableChunks() {
+         DisableChunkLoading = getBoolean("experimental.disable-chunk-loading", DisableChunkLoading);
+     }
++
++    public static double DisableChunkLoadingSpeed = 1.9;
++    private static void ChunkLoadingSpeed() {
++        DisableChunkLoadingSpeed = getDouble("settings.disable-chunk-loading-speed", DisableChunkLoadingSpeed);
++    }
++
+     public static boolean RemoveConsoleSpam = true;
+     private static void ConsoleSpam() {
+         RemoveConsoleSpam = getBoolean("debug.remove-console-spam", RemoveConsoleSpam);
+     }
+-
+     public static boolean DebugMaps = false;
+     private static void mapdebug() {
+         DebugMaps = getBoolean("debug.debug-maps", DebugMaps);
+diff --git a/src/main/java/net/minecraft/server/PlayerChunk.java b/src/main/java/net/minecraft/server/PlayerChunk.java
+index 3955cdfec..482006302 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunk.java
++++ b/src/main/java/net/minecraft/server/PlayerChunk.java
+@@ -4,6 +4,8 @@ import com.destroystokyo.paper.ccSpigotConfig;
+ import com.google.common.base.Predicate;
+ import com.google.common.collect.Iterables;
+ import com.google.common.collect.Lists;
++
++import java.util.HashMap;
+ import java.util.Iterator;
+ import java.util.List;
+ import javax.annotation.Nullable;
+@@ -60,26 +62,29 @@ public class PlayerChunk {
+     public ChunkCoordIntPair a() {
+         return this.location;
+     }
++    public static HashMap<String, Boolean> fastplayers = new HashMap<String, Boolean>();
+ 
+     public void a(final EntityPlayer entityplayer) { // CraftBukkit - added final to argument
+         if(!ccSpigotConfig.DisableChunkLoading) {
+-            if (this.c.contains(entityplayer)) {
+-                PlayerChunk.a.debug("Failed to add player. {} already is in chunk {}, {}", entityplayer, Integer.valueOf(this.location.x), Integer.valueOf(this.location.z));
+-            } else {
+-                if (this.c.isEmpty()) {
+-                    this.i = this.playerChunkMap.getWorld().getTime();
+-                }
++            if(!fastplayers.get(entityplayer.getName())){
++                if (this.c.contains(entityplayer)) {
++                    PlayerChunk.a.debug("Failed to add player. {} already is in chunk {}, {}", entityplayer, Integer.valueOf(this.location.x), Integer.valueOf(this.location.z));
++                } else {
++                    if (this.c.isEmpty()) {
++                        this.i = this.playerChunkMap.getWorld().getTime();
++                    }
+ 
+-                this.c.add(entityplayer);
+-                // CraftBukkit start - use async chunk io
+-                // if (this.done) {
+-                //     this.sendChunk(entityplayer);
+-                // }
+-                if (this.done) {
+-                    this.sendChunk(entityplayer);
+-                }
+-                // CraftBukkit end
++                    this.c.add(entityplayer);
++                    // CraftBukkit start - use async chunk io
++                    // if (this.done) {
++                    //     this.sendChunk(entityplayer);
++                    // }
++                    if (this.done) {
++                        this.sendChunk(entityplayer);
++                    }
++                    // CraftBukkit end
+ 
++                }
+             }
+         }
+     }
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index c806a8f80..a6bff7836 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -1,17 +1,13 @@
+ package net.minecraft.server;
+ 
+ import com.destroystokyo.paper.ccSpigotConfig;
+-import com.google.common.collect.Lists;
+ import com.google.common.primitives.Doubles;
+ import com.google.common.primitives.Floats;
+-import com.google.common.util.concurrent.Futures;
+ import io.netty.util.concurrent.Future;
+ import io.netty.util.concurrent.GenericFutureListener;
+ import java.io.IOException;
+ import java.util.ArrayList;
+ import java.util.Collections;
+-import java.util.Iterator;
+-import java.util.List;
+ import java.util.Set;
+ import org.apache.commons.lang3.StringUtils;
+ import org.apache.logging.log4j.LogManager;
+@@ -449,6 +445,16 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                     this.lastYaw = to.getYaw();
+                     this.lastPitch = to.getPitch();
+ 
++                    double distX = to.getX() - from.getX();
++                    double distZ = to.getZ() - from.getZ();
++                    double finalValue = Math.hypot(distX, distZ);
++
++                    if(!(finalValue > ccSpigotConfig.DisableChunkLoadingSpeed)){
++                        net.minecraft.server.PlayerChunk.fastplayers.put(player.getName(), true);
++                    } else {
++                        PlayerChunk.fastplayers.put(player.getName(), false);
++                    }
++
+                     // Skip the first time we do this
+                     if (true) { // Spigot - don't skip any move events
+                         Location oldTo = to.clone();
+-- 
+2.22.0.windows.1
+

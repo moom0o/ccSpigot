@@ -1,0 +1,41 @@
+From 7968264b9c2eab1f4e32948e13d8c27740f778e2 Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Wed, 9 Dec 2020 01:19:40 -0500
+Subject: [PATCH] lol
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 90c991fc3..b96f66bbe 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -449,18 +449,17 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                     double distZ = to.getZ() - from.getZ();
+                     double finalValue = Math.hypot(distX, distZ);
+ 
+-                    if(finalValue > ccSpigotConfig.DisableChunkLoadingSpeed){
+-                        net.minecraft.server.PlayerChunk.fastplayers.add(player.getName());
+-                        if(ccSpigotConfig.DebugDisableChunksSpeed){
+-                            System.out.println("fast added " + finalValue);
+-                        }
+-                    } else {
+-                        PlayerChunk.fastplayers.remove(player.getName());
+-                        System.out.println("fast removed " + finalValue);
+-                    }
+-
+                     // Skip the first time we do this
+                     if (true) { // Spigot - don't skip any move events
++                        if(finalValue > ccSpigotConfig.DisableChunkLoadingSpeed){
++                            net.minecraft.server.PlayerChunk.fastplayers.add(player.getName());
++                            if(ccSpigotConfig.DebugDisableChunksSpeed){
++                                System.out.println("fast added " + finalValue);
++                            }
++                        } else {
++                            PlayerChunk.fastplayers.remove(player.getName());
++                            System.out.println("fast removed " + finalValue);
++                        }
+                         Location oldTo = to.clone();
+                         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
+                         this.server.getPluginManager().callEvent(event);
+-- 
+2.22.0.windows.1
+

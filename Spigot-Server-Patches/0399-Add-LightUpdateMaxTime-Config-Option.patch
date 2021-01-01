@@ -1,4 +1,4 @@
-From 899e939bb82980bed06b21b79d393bfd19d05a7d Mon Sep 17 00:00:00 2001
+From 9c51128889b04d96c2cc85de7a994046d7941756 Mon Sep 17 00:00:00 2001
 From: moo <moo@moo.moo>
 Date: Tue, 1 Sep 2020 19:55:15 -0400
 Subject: [PATCH] Add-LightUpdateMaxTime-Config-Option

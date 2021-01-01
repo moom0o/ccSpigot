@@ -1,0 +1,71 @@
+From 1c9dec367311510fbddfd15a7243e82ccc9cdd4c Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Wed, 9 Dec 2020 00:30:23 -0500
+Subject: [PATCH] aaaaaaaaaaaaaaaaaaaaa
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index f5dba13f8..3c641e4c4 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -216,7 +216,10 @@ public class ccSpigotConfig {
+     private static void EntitySpeedDebug() {
+         DebugEntitySpeed = getBoolean("debug.debug-entity-speed", DebugEntitySpeed);
+     }
+-
++    public static boolean DebugDisableChunksSpeed = false;
++    private static void DebugChunks() {
++        DebugDisableChunksSpeed = getBoolean("debug.disable-chunks-speed-debug", DebugDisableChunksSpeed);
++    }
+     public static boolean DisableChunkLoading = false;
+     private static void DisableChunks() {
+         DisableChunkLoading = getBoolean("experimental.disable-chunk-loading", DisableChunkLoading);
+diff --git a/src/main/java/net/minecraft/server/PlayerChunk.java b/src/main/java/net/minecraft/server/PlayerChunk.java
+index 5e5b1a27a..44a4eb670 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunk.java
++++ b/src/main/java/net/minecraft/server/PlayerChunk.java
+@@ -68,6 +68,9 @@ public class PlayerChunk {
+     public void a(final EntityPlayer entityplayer) { // CraftBukkit - added final to argument
+         if(!ccSpigotConfig.DisableChunkLoading) {
+             if(!fastplayers.contains(entityplayer.getName())){
++                if(ccSpigotConfig.DebugDisableChunksSpeed){
++                    System.out.println("Doesn't contain " + entityplayer.getName());
++                }
+                 if (this.c.contains(entityplayer)) {
+                     PlayerChunk.a.debug("Failed to add player. {} already is in chunk {}, {}", entityplayer, Integer.valueOf(this.location.x), Integer.valueOf(this.location.z));
+                 } else {
+@@ -86,6 +89,8 @@ public class PlayerChunk {
+                     // CraftBukkit end
+ 
+                 }
++            } else {
++                System.out.println("Contains " + entityplayer.getName());
+             }
+         }
+     }
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 8c1781741..90c991fc3 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -450,13 +450,13 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+                     double finalValue = Math.hypot(distX, distZ);
+ 
+                     if(finalValue > ccSpigotConfig.DisableChunkLoadingSpeed){
+-                        if(!(PlayerChunk.fastplayers.contains(player.getName()))){
+-                            net.minecraft.server.PlayerChunk.fastplayers.add(player.getName());
++                        net.minecraft.server.PlayerChunk.fastplayers.add(player.getName());
++                        if(ccSpigotConfig.DebugDisableChunksSpeed){
++                            System.out.println("fast added " + finalValue);
+                         }
+                     } else {
+-                        if(PlayerChunk.fastplayers.contains(player.getName())){
+-                            PlayerChunk.fastplayers.add(player.getName());
+-                        }
++                        PlayerChunk.fastplayers.remove(player.getName());
++                        System.out.println("fast removed " + finalValue);
+                     }
+ 
+                     // Skip the first time we do this
+-- 
+2.22.0.windows.1
+

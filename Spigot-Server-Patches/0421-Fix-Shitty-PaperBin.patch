@@ -1,0 +1,153 @@
+From 5ea12a4d66d89a16b545dca7df21f45d383278df Mon Sep 17 00:00:00 2001
+From: moo <moo@moo.moo>
+Date: Thu, 31 Dec 2020 15:08:22 -0500
+Subject: [PATCH] Fix-Shitty-PaperBin
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+index 3c641e4c4..db0e9d80f 100644
+--- a/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
++++ b/src/main/java/com/destroystokyo/paper/ccSpigotConfig.java
+@@ -216,20 +216,11 @@ public class ccSpigotConfig {
+     private static void EntitySpeedDebug() {
+         DebugEntitySpeed = getBoolean("debug.debug-entity-speed", DebugEntitySpeed);
+     }
+-    public static boolean DebugDisableChunksSpeed = false;
+-    private static void DebugChunks() {
+-        DebugDisableChunksSpeed = getBoolean("debug.disable-chunks-speed-debug", DebugDisableChunksSpeed);
+-    }
+     public static boolean DisableChunkLoading = false;
+     private static void DisableChunks() {
+         DisableChunkLoading = getBoolean("experimental.disable-chunk-loading", DisableChunkLoading);
+     }
+ 
+-    public static double DisableChunkLoadingSpeed = 1.9;
+-    private static void ChunkLoadingSpeed() {
+-        DisableChunkLoadingSpeed = getDouble("settings.disable-chunk-loading-speed", DisableChunkLoadingSpeed);
+-    }
+-
+     public static boolean RemoveConsoleSpam = true;
+     private static void ConsoleSpam() {
+         RemoveConsoleSpam = getBoolean("debug.remove-console-spam", RemoveConsoleSpam);
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 07b472443..5cf34a941 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1156,6 +1156,7 @@ public abstract class MinecraftServer implements ICommandListener, Runnable, IAs
+     }
+ 
+     public String getServerModName() {
++        String kek = "added this so shitty paperbin doesnt get pissed";
+         return com.destroystokyo.paper.ccSpigotConfig.serverbrand; //ccSpigot - ccSpigot > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
+     }
+ 
+diff --git a/src/main/java/net/minecraft/server/PlayerChunk.java b/src/main/java/net/minecraft/server/PlayerChunk.java
+index c629a86ab..f94e37b34 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunk.java
++++ b/src/main/java/net/minecraft/server/PlayerChunk.java
+@@ -63,36 +63,26 @@ public class PlayerChunk {
+     public ChunkCoordIntPair a() {
+         return this.location;
+     }
+-    public static HashSet<String> fastplayers = new HashSet<String>();
+ 
+     public void a(final EntityPlayer entityplayer) { // CraftBukkit - added final to argument
+         if(!ccSpigotConfig.DisableChunkLoading) {
+-            if(!fastplayers.contains(entityplayer.getName())){
+-                if(ccSpigotConfig.DebugDisableChunksSpeed){
+-                    System.out.println("Doesn't contain " + entityplayer.getName());
++            if (this.c.contains(entityplayer)) {
++                PlayerChunk.a.debug("Failed to add player. {} already is in chunk {}, {}", entityplayer, Integer.valueOf(this.location.x), Integer.valueOf(this.location.z));
++            } else {
++                if (this.c.isEmpty()) {
++                    this.i = this.playerChunkMap.getWorld().getTime();
+                 }
+-                if (this.c.contains(entityplayer)) {
+-                    PlayerChunk.a.debug("Failed to add player. {} already is in chunk {}, {}", entityplayer, Integer.valueOf(this.location.x), Integer.valueOf(this.location.z));
+-                } else {
+-                    if (this.c.isEmpty()) {
+-                        this.i = this.playerChunkMap.getWorld().getTime();
+-                    }
+-
+-                    this.c.add(entityplayer);
+-                    // CraftBukkit start - use async chunk io
+-                    // if (this.done) {
+-                    //     this.sendChunk(entityplayer);
+-                    // }
+-                    if (this.done) {
+-                        this.sendChunk(entityplayer);
+-                    }
+-                    // CraftBukkit end
+ 
++                this.c.add(entityplayer);
++                // CraftBukkit start - use async chunk io
++                // if (this.done) {
++                //     this.sendChunk(entityplayer);
++                // }
++                if (this.done) {
++                    this.sendChunk(entityplayer);
+                 }
+-            } else {
+-                if(ccSpigotConfig.DebugDisableChunksSpeed){
+-                    System.out.println("Contains " + entityplayer.getName());
+-                }
++                // CraftBukkit end
++
+             }
+         }
+     }
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index 9a60a66bc..a61f9b5c0 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -451,15 +451,6 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+ 
+                     // Skip the first time we do this
+                     if (true) { // Spigot - don't skip any move events
+-                        if(finalValue > ccSpigotConfig.DisableChunkLoadingSpeed){
+-                            net.minecraft.server.PlayerChunk.fastplayers.add(player.getName());
+-                            if(ccSpigotConfig.DebugDisableChunksSpeed){
+-                                System.out.println("fast added " + finalValue);
+-                            }
+-                        } else {
+-                            PlayerChunk.fastplayers.remove(player.getName());
+-                            System.out.println("fast removed " + finalValue);
+-                        }
+                         Location oldTo = to.clone();
+                         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
+                         this.server.getPluginManager().callEvent(event);
+@@ -739,21 +730,6 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+ 
+                                 // Skip the first time we do this
+                                 if (from.getX() != Double.MAX_VALUE) {
+-                                    double distX = to.getX() - from.getX();
+-                                    double distZ = to.getZ() - from.getZ();
+-                                    double finalValue = Math.hypot(distX, distZ);
+-                                    if(finalValue > ccSpigotConfig.DisableChunkLoadingSpeed){
+-                                        net.minecraft.server.PlayerChunk.fastplayers.add(player.getName());
+-                                        if(ccSpigotConfig.DebugDisableChunksSpeed){
+-                                            System.out.println("fast added " + finalValue);
+-                                        }
+-                                    } else {
+-                                        PlayerChunk.fastplayers.remove(player.getName());
+-                                        if(ccSpigotConfig.DebugDisableChunksSpeed){
+-                                            System.out.println("fast removed " + finalValue);
+-                                        }
+-                                    }
+-
+                                     Location oldTo = to.clone();
+                                     PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
+                                     this.server.getPluginManager().callEvent(event);
+@@ -1203,9 +1179,6 @@ public class PlayerConnection implements PacketListenerPlayIn, ITickable {
+         // CraftBukkit end
+         if(!ccSpigotConfig.RemoveConnectionMessages){
+             PlayerConnection.LOGGER.info("{} lost connection: {}", this.player.getName(), ichatbasecomponent.toPlainText());
+-            if(PlayerChunk.fastplayers.contains(this.player.getName())){
+-                PlayerChunk.fastplayers.remove(this.player.getName());
+-            }
+         }
+         // CraftBukkit start - Replace vanilla quit message handling with our own.
+         /*
+-- 
+2.22.0.windows.1
+
