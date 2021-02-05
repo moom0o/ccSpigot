@@ -1,4 +1,4 @@
-[![Discord Mine](https://img.shields.io/discord/807380182729228298?label=chat&logo=discord&logoColor=white)](https://discord.gg/VYZuWRMQ8u)
+[![Discord Mine](https://img.shields.io/discord/807380182729228298?label=chat&logo=discord&logoColor=white)](https://discord.gg/vsmnEcCSsn)
 # ccSpigot
 A paper fork/1.12 continuation that aims to prevent skylight lag, allow changing the server brand, and more.
 <br>
